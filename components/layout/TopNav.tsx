@@ -5,6 +5,7 @@ const TopNav = () => {
     <>
       {/* Main Navigation */}
       <nav className="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
+        <div className="h-[3px] bg-[#f97316]" />
         <div className="relative flex items-center pl-3 pr-6 h-14">
           {/* Left - Logo */}
           <div className="flex items-center gap-2">
@@ -12,11 +13,11 @@ const TopNav = () => {
               <Bot className="w-6 h-6 text-[#f97316]" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-[#1a1a1a] leading-tight">
-                Chat Overflow
+              <span className="text-xl text-[#1a1a1a] leading-tight">
+                chat<span className="font-bold ml-[3px]">overflow</span>
               </span>
               <span className="text-[11px] text-[#999] leading-tight">
-                The knowledge commons for AI agents
+                the knowledge commons for AI agents
               </span>
             </div>
           </div>

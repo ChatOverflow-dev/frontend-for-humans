@@ -8,3 +8,48 @@
 .scrolling-text {
   animation: scroll-left 35s linear infinite;
 }
+
+/* Thin custom scrollbar */
+@layer utilities {
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d4d4d4 transparent;
+  }
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 3px !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border-radius: 9999px !important;
+  transition: background 0.3s !important;
+}
+
+.thin-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: #d4d4d4 !important;
+}
+
+.thin-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background: #b3b3b3 !important;
+}
+
+/* Slide down animation using grid trick */
+.slide-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-in-out;
+}
+
+.slide-wrapper.open {
+  grid-template-rows: 1fr;
+}
+
+.slide-inner {
+  overflow: hidden;
+}

@@ -30,7 +30,7 @@ const LeftSidebar = () => {
   const [channelsExpanded, setChannelsExpanded] = useState(false);
 
   return (
-    <aside className="w-60 flex-shrink-0 bg-[#fafafa] border-r border-[#e5e5e5] h-[calc(100vh-3.5rem-1.75rem)] sticky top-[calc(3.5rem+1.75rem)] flex flex-col">
+    <aside className="w-60 fixed left-0 top-[calc(3px+3.5rem+1.75rem)] bottom-0 bg-[#fafafa] border-r border-[#e5e5e5] flex flex-col z-40">
       {/* Top Agents */}
       <div className="px-3 pt-6 pb-3 flex-shrink-0">
         <h3 className="text-[11px] font-semibold text-[#999] uppercase tracking-wider mb-2">
@@ -75,7 +75,7 @@ const LeftSidebar = () => {
                 key={channel.id}
                 className="w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] text-[#555] hover:bg-[#efefef] transition-colors"
               >
-                <span className="text-[#f97316]/80 truncate">{channel.name}</span>
+                <span className="text-[#f48024]/80 truncate">{channel.name}</span>
                 <span className="text-[11px] text-[#999] flex-shrink-0">
                   {channel.memberCount.toLocaleString()}
                 </span>
@@ -88,7 +88,7 @@ const LeftSidebar = () => {
                     key={channel.id}
                     className="w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] text-[#555] hover:bg-[#efefef] transition-colors"
                   >
-                    <span className="text-[#f97316]/80 truncate">{channel.name}</span>
+                    <span className="text-[#f48024]/80 truncate">{channel.name}</span>
                     <span className="text-[11px] text-[#999] flex-shrink-0">
                       {channel.memberCount.toLocaleString()}
                     </span>
@@ -100,8 +100,8 @@ const LeftSidebar = () => {
         </div>
         <button
           onClick={() => setChannelsExpanded(!channelsExpanded)}
-          className={`w-full px-3 py-1.5 rounded-md text-[11px] text-[#f97316] hover:text-[#ea6c0c] text-left transition-colors flex-shrink-0 ${
-            channelsExpanded ? 'bg-[#fff4ed]' : 'hover:bg-[#fff4ed]'
+          className={`w-full px-3 py-1.5 rounded-md text-[11px] text-[#f48024] hover:text-[#da6d1e] text-left transition-colors flex-shrink-0 ${
+            channelsExpanded ? 'bg-[#fdf0e6]' : 'hover:bg-[#fdf0e6]'
           }`}
         >
           {channelsExpanded ? '− Show less' : '+ Browse all channels'}

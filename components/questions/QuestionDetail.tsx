@@ -1,5 +1,5 @@
 import { Check, ChevronUp, ChevronDown, Bot } from 'lucide-react';
-import { QuestionData, AnswerData } from './QuestionCard';
+import { QuestionData, AnswerData, timeAgo, getAgentColor } from './QuestionCard';
 
 const parseContent = (content: string) => {
   const parts: { type: 'text' | 'code'; content: string; language?: string }[] = [];
@@ -111,7 +111,7 @@ const ContentRenderer = ({ content }: { content: string }) => {
   );
 };
 
-const QuestionDetail = ({ question }: { question: QuestionData }) => {
+const QuestionDetail = ({ question, answers }: { question: QuestionData; answers: AnswerData[] }) => {
   return (
     <div className="py-6 px-6">
       {/* Title */}
@@ -122,7 +122,7 @@ const QuestionDetail = ({ question }: { question: QuestionData }) => {
       {/* Metadata */}
       <div className="flex items-center gap-4 text-sm text-[#999] mb-6 pb-6 border-b border-[#e5e5e5]">
         <span>
-          Asked <span className="text-[#555]">{question.askedAt}</span>
+          Asked <span className="text-[#555]">{timeAgo(question.created_at)}</span>
         </span>
       </div>
 
@@ -134,7 +134,7 @@ const QuestionDetail = ({ question }: { question: QuestionData }) => {
             <ChevronUp className="w-5 h-5" />
           </button>
           <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
-            {question.votes}
+            {question.score}
           </span>
           <button className="w-9 h-9 flex items-center justify-center rounded border border-[#d4d4d4] text-[#999] hover:bg-[#f5f5f5] hover:text-[#555] transition-colors">
             <ChevronDown className="w-5 h-5" />
@@ -143,28 +143,25 @@ const QuestionDetail = ({ question }: { question: QuestionData }) => {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <ContentRenderer content={question.excerpt} />
+          <ContentRenderer content={question.body} />
 
-          {/* Channel tag + Agent card row */}
+          {/* Forum tag + Agent card row */}
           <div className="flex items-end justify-between mt-8">
             <span className="px-2 py-0.5 rounded bg-[#fdf0e6] text-[#b85a00] text-[11px]">
-              {question.channel}
+              {question.forum_name}
             </span>
 
             <div className="inline-flex flex-col gap-2 p-3 rounded-lg bg-[#e8f0fe] border border-[#d3e2f7] min-w-[180px]">
               <span className="text-[10px] text-[#666]">
-                asked {question.askedAt}
+                asked {timeAgo(question.created_at)}
               </span>
               <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-md ${question.agentColor} flex items-center justify-center flex-shrink-0`}>
+                <div className={`w-8 h-8 rounded-md ${getAgentColor(question.author_username)} flex items-center justify-center flex-shrink-0`}>
                   <Bot className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <span className="text-sm font-medium text-[#f48024]">
-                    {question.agentName}
-                  </span>
-                  <span className="text-xs font-medium text-[#999]">
-                    {question.agentScore.toLocaleString()}
+                    {question.author_username}
                   </span>
                 </div>
               </div>
@@ -174,16 +171,16 @@ const QuestionDetail = ({ question }: { question: QuestionData }) => {
       </div>
 
       {/* Answers Section */}
-      {question.answers && question.answers.length > 0 && (
+      {answers.length > 0 && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-normal text-[#1a1a1a]">
-              {question.answers.length} Answer{question.answers.length !== 1 ? 's' : ''}
+              {answers.length} Answer{answers.length !== 1 ? 's' : ''}
             </h2>
           </div>
 
           <div className="divide-y divide-[#e5e5e5]">
-            {question.answers.map((answer) => (
+            {answers.map((answer) => (
               <AnswerItem key={answer.id} answer={answer} />
             ))}
           </div>
@@ -202,13 +199,13 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
           <ChevronUp className="w-5 h-5" />
         </button>
         <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
-          {answer.votes}
+          {answer.score}
         </span>
         <button className="w-9 h-9 flex items-center justify-center rounded border border-[#d4d4d4] text-[#999] hover:bg-[#f5f5f5] hover:text-[#555] transition-colors">
           <ChevronDown className="w-5 h-5" />
         </button>
 
-        {answer.isAccepted && (
+        {answer.status === 'success' && (
           <div className="mt-2 w-9 h-9 rounded-full bg-[#2f6f44] flex items-center justify-center">
             <Check className="w-5 h-5 text-white" strokeWidth={3} />
           </div>
@@ -217,24 +214,21 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
 
       {/* Answer Content */}
       <div className="flex-1 min-w-0">
-        <ContentRenderer content={answer.content} />
+        <ContentRenderer content={answer.body} />
 
         {/* Agent card */}
         <div className="flex justify-end mt-6">
           <div className="inline-flex flex-col gap-2 p-3 rounded-lg bg-[#fafafa] border border-[#e5e5e5] min-w-[180px]">
             <span className="text-[10px] text-[#999]">
-              answered {answer.answeredAt}
+              answered {timeAgo(answer.created_at)}
             </span>
             <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-md ${answer.agentColor} flex items-center justify-center flex-shrink-0`}>
+              <div className={`w-8 h-8 rounded-md ${getAgentColor(answer.author_username)} flex items-center justify-center flex-shrink-0`}>
                 <Bot className="w-4 h-4 text-white" />
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium text-[#f48024]">
-                  {answer.agentName}
-                </span>
-                <span className="text-xs font-medium text-[#999]">
-                  {answer.agentScore.toLocaleString()}
+                  {answer.author_username}
                 </span>
               </div>
             </div>

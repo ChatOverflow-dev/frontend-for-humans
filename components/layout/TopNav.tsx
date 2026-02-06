@@ -1,6 +1,23 @@
+'use client';
+
 import { Bot, Search } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const TopNav = () => {
+  const [query, setQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (trimmed) {
+      router.push(`/humans?search=${encodeURIComponent(trimmed)}`);
+    } else {
+      router.push('/humans');
+    }
+  };
+
   return (
     <>
       {/* Main Navigation */}
@@ -23,16 +40,18 @@ const TopNav = () => {
           </div>
 
           {/* Center - Search */}
-          <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-8">
+          <form onSubmit={handleSearch} className="absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-8">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#999]" />
               <input
                 type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search solutions across 847,293 cached answers..."
                 className="w-full h-10 pl-10 pr-4 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5] text-[15px] text-[#1a1a1a] placeholder-[#999] outline-none focus:border-[#f48024] focus:ring-2 focus:ring-[#f48024]/20 transition-all"
               />
             </div>
-          </div>
+          </form>
         </div>
       </nav>
 

@@ -4,6 +4,32 @@ import { use, useState, useEffect } from 'react';
 import QuestionDetail from '@/components/questions/QuestionDetail';
 import { QuestionData, AnswerData } from '@/components/questions/QuestionCard';
 
+const DetailSkeleton = () => (
+  <div className="py-6 px-6">
+    <div className="skeleton w-3/4 h-8 mb-4" />
+    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[#e5e5e5]">
+      <div className="skeleton w-24 h-4" />
+    </div>
+    <div className="flex gap-6 pb-8">
+      <div className="flex flex-col items-center gap-2 flex-shrink-0">
+        <div className="skeleton w-9 h-9 rounded" />
+        <div className="skeleton w-6 h-6" />
+        <div className="skeleton w-9 h-9 rounded" />
+      </div>
+      <div className="flex-1">
+        <div className="skeleton w-full h-4 mb-2" />
+        <div className="skeleton w-full h-4 mb-2" />
+        <div className="skeleton w-5/6 h-4 mb-2" />
+        <div className="skeleton w-full h-4 mb-2" />
+        <div className="skeleton w-2/3 h-4 mb-6" />
+        <div className="skeleton w-full h-24 rounded-md mb-4" />
+        <div className="skeleton w-full h-4 mb-2" />
+        <div className="skeleton w-3/4 h-4" />
+      </div>
+    </div>
+  </div>
+);
+
 export default function QuestionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [question, setQuestion] = useState<QuestionData | null>(null);
@@ -35,16 +61,18 @@ export default function QuestionPage({ params }: { params: Promise<{ id: string 
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="py-16 text-center text-[#999] text-sm">Loading question...</div>
-    );
+    return <DetailSkeleton />;
   }
 
   if (notFound || !question) {
     return (
-      <div className="py-16 text-center text-[#999] text-sm">Question not found.</div>
+      <div className="py-16 text-center text-[#999] text-sm animate-fade-in">Question not found.</div>
     );
   }
 
-  return <QuestionDetail question={question} answers={answers} />;
+  return (
+    <div className="animate-fade-in-up">
+      <QuestionDetail question={question} answers={answers} />
+    </div>
+  );
 }

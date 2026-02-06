@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import QuestionCard from './QuestionCard';
 import { QuestionData } from './QuestionCard';
@@ -15,10 +15,40 @@ interface ForumInfo {
   description: string | null;
 }
 
+const SkeletonCard = () => (
+  <div className="flex gap-4 py-4 border-b border-[#e5e5e5]">
+    <div className="flex-shrink-0 flex gap-4 min-w-[120px]">
+      <div className="flex flex-col items-center min-w-[50px] gap-1">
+        <div className="skeleton w-8 h-6" />
+        <div className="skeleton w-8 h-3" />
+      </div>
+      <div className="flex flex-col items-center min-w-[50px] gap-1">
+        <div className="skeleton w-8 h-6" />
+        <div className="skeleton w-10 h-3" />
+      </div>
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="skeleton w-3/4 h-5 mb-2" />
+      <div className="skeleton w-full h-4 mb-1" />
+      <div className="skeleton w-2/3 h-4 mb-5" />
+      <div className="flex items-center justify-between">
+        <div className="skeleton w-24 h-5 rounded" />
+        <div className="flex items-center gap-2">
+          <div className="skeleton w-5 h-5 rounded" />
+          <div className="skeleton w-20 h-4" />
+          <div className="skeleton w-16 h-4" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const QuestionList = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const forumId = searchParams.get('forum') || '';
+  const forumNameParam = searchParams.get('fname') || '';
+  const forumDescParam = searchParams.get('fdesc') || '';
   const [activeTab, setActiveTab] = useState('top');
   const [currentPage, setCurrentPage] = useState(1);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
@@ -26,31 +56,23 @@ const QuestionList = () => {
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
   const [forumInfo, setForumInfo] = useState<ForumInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const prevTotalRef = useRef<number | null>(null);
   const perPage = 20;
 
   const currentTab = tabs.find((t) => t.id === activeTab)!;
 
+  // Optimistic: set forum info immediately from URL params
+  useEffect(() => {
+    if (forumId && forumNameParam) {
+      setForumInfo({ name: forumNameParam, description: forumDescParam || null });
+    } else if (!forumId) {
+      setForumInfo(null);
+    }
+  }, [forumId, forumNameParam, forumDescParam]);
+
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, forumId]);
-
-  useEffect(() => {
-    if (forumId) {
-      fetch('/api/forums')
-        .then((res) => res.json())
-        .then((data) => {
-          const forum = data.forums.find((f: { id: string }) => f.id === forumId);
-          if (forum) {
-            setForumInfo({ name: forum.name, description: forum.description });
-          } else {
-            setForumInfo(null);
-          }
-        })
-        .catch(() => setForumInfo(null));
-    } else {
-      setForumInfo(null);
-    }
-  }, [forumId]);
 
   useEffect(() => {
     setLoading(true);
@@ -68,19 +90,29 @@ const QuestionList = () => {
         setTotalPages(data.total_pages);
 
         if (data.total_pages <= 1) {
-          setTotalQuestions(data.questions.length);
+          const total = data.questions.length;
+          prevTotalRef.current = total;
+          setTotalQuestions(total);
         } else if (currentPage === data.total_pages) {
-          setTotalQuestions((data.total_pages - 1) * perPage + data.questions.length);
+          const total = (data.total_pages - 1) * perPage + data.questions.length;
+          prevTotalRef.current = total;
+          setTotalQuestions(total);
         } else {
+          // Show previous total while loading the exact count
+          if (prevTotalRef.current !== null) {
+            setTotalQuestions(prevTotalRef.current);
+          }
           let lastUrl = `/api/questions?sort=${activeTab}&page=${data.total_pages}`;
           if (searchQuery) lastUrl += `&search=${encodeURIComponent(searchQuery)}`;
           if (forumId) lastUrl += `&forum_id=${encodeURIComponent(forumId)}`;
           fetch(lastUrl)
             .then((r) => r.json())
             .then((last) => {
-              setTotalQuestions((data.total_pages - 1) * perPage + last.questions.length);
+              const total = (data.total_pages - 1) * perPage + last.questions.length;
+              prevTotalRef.current = total;
+              setTotalQuestions(total);
             })
-            .catch(() => setTotalQuestions(null));
+            .catch(() => {});
         }
       })
       .catch(() => {})
@@ -109,23 +141,21 @@ const QuestionList = () => {
   return (
     <div className="py-6 px-6">
       {/* Header */}
-      <div className="mb-4">
+      <div key={`header-${searchQuery}-${forumId}-${activeTab}`} className="mb-4 animate-fade-in">
         <h1 className="text-2xl font-bold text-[#1a1a1a]">
           {searchQuery
             ? `Search Results for "${searchQuery}"`
             : forumInfo
-              ? `Questions on ${forumInfo.name}`
+              ? <>Questions on <span className="text-[#f48024]">c/{forumInfo.name}</span></>
               : currentTab.heading}
         </h1>
         <p className="text-sm text-[#666] mt-1 min-h-[20px]">
           {forumInfo?.description && !searchQuery ? forumInfo.description : '\u00A0'}
         </p>
       </div>
-      {totalQuestions !== null && (
-        <p className="text-sm text-[#999] mb-4">
-          {totalQuestions.toLocaleString()} questions
-        </p>
-      )}
+      <p key={`count-${searchQuery}-${forumId}-${activeTab}`} className="text-sm text-[#999] mb-4 min-h-[20px] animate-fade-in transition-opacity duration-300" style={{ opacity: totalQuestions !== null ? 1 : 0 }}>
+        {totalQuestions !== null ? `${totalQuestions.toLocaleString()} questions` : '\u00A0'}
+      </p>
 
       {/* Filter tabs */}
       <div className="flex items-center gap-1 border-b border-[#e5e5e5] pb-3">
@@ -146,18 +176,28 @@ const QuestionList = () => {
 
       {/* Question List */}
       {loading ? (
-        <div className="py-16 text-center text-[#999] text-sm">Loading questions...</div>
+        <div>
+          {[...Array(6)].map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       ) : questions.length === 0 ? (
-        <div className="py-16 text-center text-[#999] text-sm">No questions found.</div>
+        <div className="py-16 text-center text-[#999] text-sm animate-fade-in">No questions found.</div>
       ) : (
-        questions.map((q) => (
-          <QuestionCard key={q.id} question={q} />
+        questions.map((q, i) => (
+          <div
+            key={q.id}
+            className="animate-fade-in-up"
+            style={{ animationDelay: `${i * 30}ms` }}
+          >
+            <QuestionCard question={q} />
+          </div>
         ))
       )}
 
       {/* Pagination */}
       {totalPages > 1 && !loading && (
-        <div className="flex items-center justify-center gap-1.5 py-8">
+        <div className="flex items-center justify-center gap-1.5 py-8 animate-fade-in">
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}

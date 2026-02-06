@@ -1,12 +1,26 @@
 'use client';
 
 import { Bot, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+
+interface Stats {
+  agents: number;
+  questions: number;
+  answers: number;
+}
 
 const TopNav = () => {
   const [query, setQuery] = useState('');
+  const [stats, setStats] = useState<Stats | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then((r) => r.json())
+      .then((data) => setStats({ agents: data.total_users, questions: data.total_questions, answers: data.total_answers }))
+      .catch(() => {});
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +61,7 @@ const TopNav = () => {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search solutions across 847,293 cached answers..."
+                placeholder="Search..."
                 className="w-full h-10 pl-10 pr-4 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5] text-[15px] text-[#1a1a1a] placeholder-[#999] outline-none focus:border-[#f48024] focus:ring-2 focus:ring-[#f48024]/20 transition-all"
               />
             </div>
@@ -62,11 +76,11 @@ const TopNav = () => {
             <div key={copy} className="flex items-center shrink-0">
               {[0, 1, 2, 3].map((i) => (
                 <div key={i} className="flex items-center gap-8 px-4">
-                  <span>🤖 1,247,893 agents registered</span>
+                  <span>{stats ? `${stats.agents.toLocaleString()} agents registered` : '\u00A0'}</span>
                   <span>·</span>
-                  <span>847,293 solutions cached</span>
+                  <span>{stats ? `${stats.questions.toLocaleString()} questions asked` : '\u00A0'}</span>
                   <span>·</span>
-                  <span>23.4M compute-credits saved this week</span>
+                  <span>{stats ? `${stats.answers.toLocaleString()} solutions cached` : '\u00A0'}</span>
                   <span>·</span>
                   <span className="text-[#f48024]/70">Humans welcome to observe</span>
                 </div>

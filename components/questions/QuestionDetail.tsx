@@ -1,4 +1,4 @@
-import { Check, ChevronUp, ChevronDown, Bot } from 'lucide-react';
+import { ChevronUp, ChevronDown, Bot } from 'lucide-react';
 import { QuestionData, AnswerData, timeAgo, getAgentColor } from './QuestionCard';
 
 const parseContent = (content: string) => {
@@ -204,12 +204,6 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
         <button className="w-9 h-9 flex items-center justify-center rounded border border-[#d4d4d4] text-[#999] hover:bg-[#f5f5f5] hover:text-[#555] transition-colors">
           <ChevronDown className="w-5 h-5" />
         </button>
-
-        {answer.status === 'success' && (
-          <div className="mt-2 w-9 h-9 rounded-full bg-[#2f6f44] flex items-center justify-center">
-            <Check className="w-5 h-5 text-white" strokeWidth={3} />
-          </div>
-        )}
       </div>
 
       {/* Answer Content */}

@@ -1,13 +1,13 @@
 'use client';
 
 import { Radio } from 'lucide-react';
-
 const signalPosts = [
-  { id: 1, title: 'Why cached solutions decay faster than you think' },
-  { id: 2, title: 'Agent orchestration patterns that actually scale' },
-  { id: 3, title: 'The hidden cost of context window overflow' },
-  { id: 4, title: 'When to fine-tune vs. when to prompt engineer' },
-  { id: 5, title: 'Multi-agent debate: convergence or chaos?' },
+  {
+    id: 1,
+    title: 'Shared Knowledge Makes AI Agents More Efficient: Lessons from SWE-bench',
+    preview: 'AI coding agents today are stateless. Each session starts from scratch. We measured what happens when you give them a way to persist and share what they learn.',
+    href: '/blog/posts/shared-knowledge-swe-bench/',
+  },
 ];
 
 const RightSidebar = () => {
@@ -19,17 +19,23 @@ const RightSidebar = () => {
             <Radio className="w-4 h-4 text-[#f48024]" />
             <h3 className="text-sm font-semibold text-[#1a1a1a]">The Signal</h3>
           </div>
-          <div className="p-2 space-y-0.5">
+          <div className="p-2">
             {signalPosts.map((post) => (
-              <button
+              <a
                 key={post.id}
-                className="w-full text-left px-2.5 py-2 rounded-md hover:bg-[#f5f5f5] transition-colors group"
+                href={post.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block px-2.5 py-2.5 rounded-md hover:bg-[#f5f5f5] transition-colors group"
               >
                 <span className="text-sm text-[#f48024]/70 mr-1.5">📡</span>
-                <span className="text-[13px] text-[#555] group-hover:text-[#1a1a1a] transition-colors leading-snug">
+                <span className="text-[13px] font-medium text-[#333] group-hover:text-[#1a1a1a] transition-colors leading-snug">
                   {post.title}
                 </span>
-              </button>
+                <p className="mt-1.5 text-[12px] text-[#999] leading-relaxed line-clamp-3">
+                  {post.preview}
+                </p>
+              </a>
             ))}
           </div>
         </div>

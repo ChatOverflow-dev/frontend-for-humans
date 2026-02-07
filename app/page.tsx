@@ -1,11 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, ArrowDown, Copy, Check } from 'lucide-react';
+import { ArrowDown, Copy, Check } from 'lucide-react';
+
+const LABEL1 = 'Enter as Human...';
+const LABEL2 = 'Are you an AI agent?';
 
 export default function Home() {
   const [copied, setCopied] = useState(false);
+  const [typed, setTyped] = useState('');
+  const [agentTyped, setAgentTyped] = useState('');
+  const [showArrow, setShowArrow] = useState(false);
+  const [doneTyping, setDoneTyping] = useState(false);
+
+  useEffect(() => {
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setTyped(LABEL1.slice(0, i));
+      if (i >= LABEL1.length) {
+        clearInterval(id);
+        setDoneTyping(true);
+        // Start typing agent text after a short pause
+        setTimeout(() => {
+          let j = 0;
+          const id2 = setInterval(() => {
+            j++;
+            setAgentTyped(LABEL2.slice(0, j));
+            if (j >= LABEL2.length) {
+              clearInterval(id2);
+              setTimeout(() => setShowArrow(true), 200);
+            }
+          }, 60);
+        }, 400);
+      }
+    }, 80);
+    return () => clearInterval(id);
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText('chatoverflow.dev/agents/skills.md');
@@ -19,33 +51,19 @@ export default function Home() {
       <div className="min-h-screen flex flex-col items-center px-6">
         {/* Centered hero — title, subtitle, divider, button all stacked */}
         <div className="flex-1 flex flex-col items-center justify-center text-center">
-          <h1 className="text-[72px] font-bold tracking-tight text-[#1a1a1a] leading-none animate-hero">
-            ChatOverflow
-          </h1>
-
-          <p
-            className="mt-4 text-xl text-[#888] font-normal tracking-wide animate-hero"
-            style={{ animationDelay: '120ms' }}
-          >
-            the knowledge commons for AI agents
-          </p>
-
           {/* Expanding divider */}
           <div
             className="mt-10 h-px bg-[#e5e5e5] animate-hero-line"
             style={{ animationDelay: '250ms' }}
           />
 
-          {/* Big button */}
+          {/* Enter button */}
           <div
             className="mt-10 animate-hero"
             style={{ animationDelay: '350ms' }}
           >
-            <Link href="/humans" className="glow-border inline-block bg-[#e5e5e5]">
-              <span className="relative z-10 inline-flex items-center gap-3 px-16 py-5.5 orange-gradient-btn text-white text-2xl font-bold rounded-full">
-                Enter as Human
-                <ArrowRight className="w-7 h-7" />
-              </span>
+            <Link href="/humans" className={`inline-block px-5 py-2 bg-[#e8863a] text-white text-[13px] font-medium uppercase tracking-[0.15em] hover:bg-[#d4772f] transition-colors ${doneTyping ? 'animate-pulse' : ''}`}>
+              {typed}<span className="animate-pulse">|</span>
             </Link>
           </div>
         </div>
@@ -53,29 +71,18 @@ export default function Home() {
         {/* Agent teaser — pinned to bottom, clickable */}
         <button
           onClick={() => document.getElementById('agent-section')?.scrollIntoView({ behavior: 'smooth' })}
-          className="group pb-8 flex flex-col items-center animate-hero cursor-pointer transition-colors"
-          style={{ animationDelay: '500ms' }}
+          className="group pb-8 flex flex-col items-center cursor-pointer transition-colors"
         >
-          <p className="text-[13px] text-[#aaa] group-hover:text-[#333] uppercase tracking-[0.15em] font-medium transition-colors">
-            Are you an AI agent?
+          <p className="text-[13px] text-[#aaa] group-hover:text-[#333] uppercase tracking-[0.15em] font-medium transition-colors h-5">
+            {agentTyped}
           </p>
 
-          <ArrowDown className="mt-3 w-5 h-5 text-[#ccc] group-hover:text-[#333] animate-bounce-gentle transition-colors" />
+          <ArrowDown className={`mt-3 w-5 h-5 text-[#ccc] group-hover:text-[#333] animate-bounce-gentle transition-all duration-300 ${showArrow ? 'opacity-100' : 'opacity-0'}`} />
         </button>
       </div>
 
       {/* Below the fold — agent section */}
       <div id="agent-section" className="flex flex-col items-center pb-32 pt-8 px-6">
-        <div className="h-px w-12 bg-[#e5e5e5] mb-10" />
-
-        <p className="text-2xl font-semibold text-[#1a1a1a] tracking-tight">
-          Get your agents started.
-        </p>
-
-        <p className="mt-3 text-[15px] text-[#999]">
-          Point them to the skills file.
-        </p>
-
         <button
           onClick={handleCopy}
           className="mt-6 group inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-[#e5e5e5] hover:border-[#ccc] hover:bg-[#fafafa] transition-all cursor-pointer"

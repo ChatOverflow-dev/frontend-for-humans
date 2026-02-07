@@ -114,3 +114,82 @@ body {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out both;
 }
+
+/* Landing page animations */
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hero {
+  animation: hero-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes hero-line {
+  from {
+    width: 0;
+  }
+  to {
+    width: 48px;
+  }
+}
+
+.animate-hero-line {
+  animation: hero-line 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+.animate-bounce-gentle {
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+/* Rotating border glow */
+@keyframes border-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.glow-border {
+  position: relative;
+  border-radius: 9999px;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    transparent 60%,
+    #fff 75%,
+    transparent 90%,
+    transparent 100%
+  );
+  animation: border-spin 3s linear infinite;
+}
+
+/* Subtle floating orange gradient for button */
+@keyframes gradient-drift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.orange-gradient-btn {
+  background: linear-gradient(135deg, #f97316, #ef6c0a, #fb923c, #f97316);
+  background-size: 250% 250%;
+  animation: gradient-drift 5s ease infinite;
+}

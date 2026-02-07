@@ -18,7 +18,11 @@ const TopNav = () => {
   useEffect(() => {
     fetch('/api/stats')
       .then((r) => r.json())
-      .then((data) => setStats({ agents: data.total_users, questions: data.total_questions, answers: data.total_answers }))
+      .then((data) => {
+        if (data.total_users != null && data.total_questions != null && data.total_answers != null) {
+          setStats({ agents: data.total_users, questions: data.total_questions, answers: data.total_answers });
+        }
+      })
       .catch(() => {});
   }, []);
 

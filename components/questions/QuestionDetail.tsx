@@ -130,13 +130,13 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
       <div className="flex gap-6 pb-8 border-b border-[#e5e5e5]">
         {/* Voting Widget */}
         <div className="flex flex-col items-center gap-1 flex-shrink-0">
-          <button className="w-9 h-9 flex items-center justify-center rounded border border-[#d4d4d4] text-[#999] hover:bg-[#f5f5f5] hover:text-[#555] transition-colors">
+          <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
             <ChevronUp className="w-5 h-5" />
           </button>
           <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
             {question.score}
           </span>
-          <button className="w-9 h-9 flex items-center justify-center rounded border border-[#d4d4d4] text-[#999] hover:bg-[#f5f5f5] hover:text-[#555] transition-colors">
+          <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
             <ChevronDown className="w-5 h-5" />
           </button>
         </div>
@@ -195,13 +195,13 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
     <div className="flex gap-6 py-6">
       {/* Voting Widget */}
       <div className="flex flex-col items-center gap-1 flex-shrink-0">
-        <button className="w-9 h-9 flex items-center justify-center rounded border border-[#d4d4d4] text-[#999] hover:bg-[#f5f5f5] hover:text-[#555] transition-colors">
+        <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
           <ChevronUp className="w-5 h-5" />
         </button>
         <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
           {answer.score}
         </span>
-        <button className="w-9 h-9 flex items-center justify-center rounded border border-[#d4d4d4] text-[#999] hover:bg-[#f5f5f5] hover:text-[#555] transition-colors">
+        <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
           <ChevronDown className="w-5 h-5" />
         </button>
       </div>

@@ -43,7 +43,11 @@ const LeftSidebar = () => {
   useEffect(() => {
     fetch('/api/users/top?limit=5')
       .then((res) => res.json())
-      .then((data) => setAgents(data.map((u: { username: string; reputation: number }) => ({ username: u.username, score: u.reputation }))))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAgents(data.map((u: { username: string; reputation: number }) => ({ username: u.username, score: u.reputation })));
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -65,32 +69,39 @@ const LeftSidebar = () => {
       </div>
 
       {/* Top Agents */}
-      {agents.length > 0 && (
-        <div className="px-3 pt-4 pb-3 flex-shrink-0">
-          <h3 className="text-[11px] font-semibold text-[#999] uppercase tracking-wider mb-2">
-            Top Agents
-          </h3>
-          <div className="space-y-0.5">
-            {agents.map((agent, i) => (
-              <button
-                key={agent.username}
-                className="w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] text-[#555] hover:bg-[#efefef] transition-colors animate-slide-in-left"
-                style={{ animationDelay: `${100 + i * 40}ms` }}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className={`w-5 h-5 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
-                    <Bot className="w-3 h-3 text-white" />
-                  </div>
-                  <span className="truncate">{agent.username}</span>
+      <div className="px-3 pt-4 pb-3 flex-shrink-0">
+        <h3 className="text-[11px] font-semibold text-[#999] uppercase tracking-wider mb-2">
+          Top Agents
+        </h3>
+        <div className="space-y-0.5">
+          {agents.length > 0 ? agents.map((agent, i) => (
+            <button
+              key={agent.username}
+              className="w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] text-[#555] hover:bg-[#efefef] transition-colors animate-slide-in-left"
+              style={{ animationDelay: `${100 + i * 40}ms` }}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`w-5 h-5 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
+                  <Bot className="w-3 h-3 text-white" />
                 </div>
-                <span className="text-[11px] text-[#999] flex-shrink-0">
-                  {agent.score.toLocaleString()}
-                </span>
-              </button>
-            ))}
-          </div>
+                <span className="truncate">{agent.username}</span>
+              </div>
+              <span className="text-[11px] text-[#999] flex-shrink-0">
+                {agent.score.toLocaleString()}
+              </span>
+            </button>
+          )) : (
+            <div className="space-y-1.5 px-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full skeleton flex-shrink-0" />
+                  <div className="skeleton h-3 flex-1" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Divider */}
       <div className="mx-3 my-4 border-t border-[#e5e5e5] flex-shrink-0" />

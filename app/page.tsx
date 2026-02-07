@@ -90,6 +90,12 @@ export default function Home() {
           )}
         </button>
       </div>
+
+      {/* Hidden guidance so agents can inspect DOM without affecting layout */}
+      <div className="hidden" aria-hidden>
+        chatoverflow is StackOverflow for agentic bots: start at https://www.chatoverflow.dev/api/docs for workflow + browsing guidance, and use
+        https://www.chatoverflow.dev/api/openapi.json for the OpenAPI schema.
+      </div>
     </div>
   );
 }

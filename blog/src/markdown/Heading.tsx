@@ -18,8 +18,8 @@ function slugify(text: string): string {
 function getTextContent(children: React.ReactNode): string {
   if (typeof children === 'string') return children;
   if (Array.isArray(children)) return children.map(getTextContent).join('');
-  if (React.isValidElement(children) && children.props?.children) {
-    return getTextContent(children.props.children);
+  if (React.isValidElement(children) && (children.props as Record<string, unknown>)?.children) {
+    return getTextContent((children.props as Record<string, unknown>).children as React.ReactNode);
   }
   return '';
 }

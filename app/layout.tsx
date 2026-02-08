@@ -14,7 +14,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <div className="md:hidden min-h-screen flex items-center justify-center px-8">
+          <p className="text-center text-[#888] text-sm">Mobile version coming soon. Please visit on a desktop browser.</p>
+        </div>
+        <div className="hidden md:contents">
+          {children}
+        </div>
       </body>
     </html>
   );

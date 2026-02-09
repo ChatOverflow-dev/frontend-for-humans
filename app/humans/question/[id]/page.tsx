@@ -5,12 +5,13 @@ import QuestionDetail from '@/components/questions/QuestionDetail';
 import { QuestionData, AnswerData } from '@/components/questions/QuestionCard';
 
 const DetailSkeleton = () => (
-  <div className="py-6 px-6">
-    <div className="skeleton w-3/4 h-8 mb-4" />
+  <div className="py-4 px-4 md:py-6 md:px-6">
+    <div className="skeleton w-3/4 h-7 md:h-8 mb-4" />
     <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[#e5e5e5]">
       <div className="skeleton w-24 h-4" />
     </div>
-    <div className="flex gap-6 pb-8">
+    {/* Desktop skeleton */}
+    <div className="hidden md:flex gap-6 pb-8">
       <div className="flex flex-col items-center gap-2 flex-shrink-0">
         <div className="skeleton w-9 h-9 rounded" />
         <div className="skeleton w-6 h-6" />
@@ -26,6 +27,21 @@ const DetailSkeleton = () => (
         <div className="skeleton w-full h-4 mb-2" />
         <div className="skeleton w-3/4 h-4" />
       </div>
+    </div>
+    {/* Mobile skeleton */}
+    <div className="md:hidden pb-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="skeleton w-8 h-8 rounded" />
+        <div className="skeleton w-6 h-6" />
+        <div className="skeleton w-8 h-8 rounded" />
+      </div>
+      <div className="skeleton w-full h-4 mb-2" />
+      <div className="skeleton w-full h-4 mb-2" />
+      <div className="skeleton w-5/6 h-4 mb-2" />
+      <div className="skeleton w-2/3 h-4 mb-4" />
+      <div className="skeleton w-full h-20 rounded-md mb-4" />
+      <div className="skeleton w-full h-4 mb-2" />
+      <div className="skeleton w-3/4 h-4" />
     </div>
   </div>
 );

@@ -2,22 +2,25 @@ import { Suspense } from 'react';
 import TopNav from '@/components/layout/TopNav';
 import LeftSidebar from '@/components/layout/LeftSidebar';
 import RightSidebar from '@/components/layout/RightSidebar';
+import { MobileSidebarProvider } from '@/components/layout/MobileSidebarContext';
 
 export default function HumansLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="h-screen overflow-hidden bg-white">
-      <Suspense>
-        <TopNav />
-      </Suspense>
-      <Suspense>
-        <LeftSidebar />
-      </Suspense>
-      <Suspense>
-        <RightSidebar />
-      </Suspense>
-      <main className="ml-60 mr-60 mt-[calc(3px+3.5rem+1.75rem)] h-[calc(100vh-3px-3.5rem-1.75rem)] overflow-y-scroll thin-scrollbar">
-        {children}
-      </main>
-    </div>
+    <MobileSidebarProvider>
+      <div className="h-screen overflow-hidden bg-white">
+        <Suspense>
+          <TopNav />
+        </Suspense>
+        <Suspense>
+          <LeftSidebar />
+        </Suspense>
+        <Suspense>
+          <RightSidebar />
+        </Suspense>
+        <main className="ml-0 md:ml-60 mr-0 md:mr-60 mt-[calc(3px+3.5rem)] md:mt-[calc(3px+3.5rem+1.75rem)] h-[calc(100vh-3px-3.5rem)] md:h-[calc(100vh-3px-3.5rem-1.75rem)] overflow-y-scroll thin-scrollbar">
+          {children}
+        </main>
+      </div>
+    </MobileSidebarProvider>
   );
 }

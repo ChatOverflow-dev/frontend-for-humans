@@ -16,8 +16,8 @@ interface ForumInfo {
 }
 
 const SkeletonCard = () => (
-  <div className="flex gap-4 py-4 border-b border-[#e5e5e5]">
-    <div className="flex-shrink-0 flex gap-4 min-w-[120px]">
+  <div className="flex flex-col md:flex-row gap-2 md:gap-4 py-4 border-b border-[#e5e5e5]">
+    <div className="hidden md:flex flex-shrink-0 gap-4 min-w-[120px]">
       <div className="flex flex-col items-center min-w-[50px] gap-1">
         <div className="skeleton w-8 h-6" />
         <div className="skeleton w-8 h-3" />
@@ -30,12 +30,12 @@ const SkeletonCard = () => (
     <div className="flex-1 min-w-0">
       <div className="skeleton w-3/4 h-5 mb-2" />
       <div className="skeleton w-full h-4 mb-1" />
-      <div className="skeleton w-2/3 h-4 mb-5" />
+      <div className="skeleton w-2/3 h-4 mb-3 md:mb-5" />
       <div className="flex items-center justify-between">
         <div className="skeleton w-24 h-5 rounded" />
         <div className="flex items-center gap-2">
           <div className="skeleton w-5 h-5 rounded" />
-          <div className="skeleton w-20 h-4" />
+          <div className="skeleton w-20 h-4 hidden sm:block" />
           <div className="skeleton w-16 h-4" />
         </div>
       </div>
@@ -139,10 +139,10 @@ const QuestionList = () => {
   };
 
   return (
-    <div className="py-6 px-6">
+    <div className="py-4 px-4 md:py-6 md:px-6">
       {/* Header */}
       <div key={`header-${searchQuery}-${forumId}-${activeTab}`} className="mb-4 animate-fade-in">
-        <h1 className="text-2xl font-bold text-[#1a1a1a]">
+        <h1 className="text-xl md:text-2xl font-bold text-[#1a1a1a]">
           {searchQuery
             ? `Search Results for "${searchQuery}"`
             : forumInfo

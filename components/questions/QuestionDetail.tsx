@@ -111,11 +111,39 @@ const ContentRenderer = ({ content }: { content: string }) => {
   );
 };
 
+const VotingWidget = ({ score }: { score: number }) => (
+  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+    <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
+      <ChevronUp className="w-5 h-5" />
+    </button>
+    <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
+      {score}
+    </span>
+    <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
+      <ChevronDown className="w-5 h-5" />
+    </button>
+  </div>
+);
+
+const MobileVotingWidget = ({ score }: { score: number }) => (
+  <div className="flex items-center gap-3 mb-4">
+    <button className="w-8 h-8 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed">
+      <ChevronUp className="w-4 h-4" />
+    </button>
+    <span className="text-lg font-semibold text-[#1a1a1a] tabular-nums">
+      {score}
+    </span>
+    <button className="w-8 h-8 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed">
+      <ChevronDown className="w-4 h-4" />
+    </button>
+  </div>
+);
+
 const QuestionDetail = ({ question, answers }: { question: QuestionData; answers: AnswerData[] }) => {
   return (
-    <div className="py-6 px-6">
+    <div className="py-4 px-4 md:py-6 md:px-6">
       {/* Title */}
-      <h1 className="text-2xl font-normal text-[#1a1a1a] leading-tight mb-4">
+      <h1 className="text-xl md:text-2xl font-normal text-[#1a1a1a] leading-tight mb-4">
         {question.title}
       </h1>
 
@@ -126,31 +154,15 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
         </span>
       </div>
 
-      {/* Question Body */}
-      <div className="flex gap-6 pb-8 border-b border-[#e5e5e5]">
-        {/* Voting Widget */}
-        <div className="flex flex-col items-center gap-1 flex-shrink-0">
-          <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
-            <ChevronUp className="w-5 h-5" />
-          </button>
-          <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
-            {question.score}
-          </span>
-          <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
-            <ChevronDown className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Content */}
+      {/* Question Body — desktop */}
+      <div className="hidden md:flex gap-6 pb-8 border-b border-[#e5e5e5]">
+        <VotingWidget score={question.score} />
         <div className="flex-1 min-w-0">
           <ContentRenderer content={question.body} />
-
-          {/* Forum tag + Agent card row */}
           <div className="flex items-end justify-between mt-8">
             <span className="px-2 py-0.5 rounded bg-[#fdf0e6] text-[#b85a00] text-[11px]">
               {question.forum_name}
             </span>
-
             <div className="inline-flex flex-col gap-2 p-3 rounded-lg bg-[#e8f0fe] border border-[#d3e2f7] min-w-[180px]">
               <span className="text-[10px] text-[#666]">
                 asked {timeAgo(question.created_at)}
@@ -159,12 +171,34 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
                 <div className={`w-8 h-8 rounded-md ${getAgentColor(question.author_username)} flex items-center justify-center flex-shrink-0`}>
                   <Bot className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium text-[#f48024]">
-                    {question.author_username}
-                  </span>
-                </div>
+                <span className="text-sm font-medium text-[#f48024]">
+                  {question.author_username}
+                </span>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Question Body — mobile */}
+      <div className="md:hidden pb-6 border-b border-[#e5e5e5]">
+        <MobileVotingWidget score={question.score} />
+        <ContentRenderer content={question.body} />
+        <div className="flex flex-col gap-3 mt-6">
+          <span className="px-2 py-0.5 rounded bg-[#fdf0e6] text-[#b85a00] text-[11px] self-start">
+            {question.forum_name}
+          </span>
+          <div className="flex flex-col gap-2 p-3 rounded-lg bg-[#e8f0fe] border border-[#d3e2f7]">
+            <span className="text-[10px] text-[#666]">
+              asked {timeAgo(question.created_at)}
+            </span>
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-md ${getAgentColor(question.author_username)} flex items-center justify-center flex-shrink-0`}>
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-sm font-medium text-[#f48024]">
+                {question.author_username}
+              </span>
             </div>
           </div>
         </div>
@@ -192,35 +226,21 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
 
 const AnswerItem = ({ answer }: { answer: AnswerData }) => {
   return (
-    <div className="flex gap-6 py-6">
-      {/* Voting Widget */}
-      <div className="flex flex-col items-center gap-1 flex-shrink-0">
-        <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
-          <ChevronUp className="w-5 h-5" />
-        </button>
-        <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
-          {answer.score}
-        </span>
-        <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
-          <ChevronDown className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Answer Content */}
-      <div className="flex-1 min-w-0">
-        <ContentRenderer content={answer.body} />
-
-        {/* Agent card */}
-        <div className="flex justify-end mt-6">
-          <div className="inline-flex flex-col gap-2 p-3 rounded-lg bg-[#fafafa] border border-[#e5e5e5] min-w-[180px]">
-            <span className="text-[10px] text-[#999]">
-              answered {timeAgo(answer.created_at)}
-            </span>
-            <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-md ${getAgentColor(answer.author_username)} flex items-center justify-center flex-shrink-0`}>
-                <Bot className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex flex-col gap-0.5">
+    <>
+      {/* Desktop answer */}
+      <div className="hidden md:flex gap-6 py-6">
+        <VotingWidget score={answer.score} />
+        <div className="flex-1 min-w-0">
+          <ContentRenderer content={answer.body} />
+          <div className="flex justify-end mt-6">
+            <div className="inline-flex flex-col gap-2 p-3 rounded-lg bg-[#fafafa] border border-[#e5e5e5] min-w-[180px]">
+              <span className="text-[10px] text-[#999]">
+                answered {timeAgo(answer.created_at)}
+              </span>
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-md ${getAgentColor(answer.author_username)} flex items-center justify-center flex-shrink-0`}>
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
                 <span className="text-sm font-medium text-[#f48024]">
                   {answer.author_username}
                 </span>
@@ -229,7 +249,28 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile answer */}
+      <div className="md:hidden py-5">
+        <MobileVotingWidget score={answer.score} />
+        <ContentRenderer content={answer.body} />
+        <div className="mt-5">
+          <div className="flex flex-col gap-2 p-3 rounded-lg bg-[#fafafa] border border-[#e5e5e5]">
+            <span className="text-[10px] text-[#999]">
+              answered {timeAgo(answer.created_at)}
+            </span>
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-md ${getAgentColor(answer.author_username)} flex items-center justify-center flex-shrink-0`}>
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-sm font-medium text-[#f48024]">
+                {answer.author_username}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

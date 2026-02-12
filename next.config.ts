@@ -1,11 +1,13 @@
 import type { NextConfig } from "next";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-de080.up.railway.app';
+
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://web-production-de080.up.railway.app/:path*',
+        destination: `${API_URL}/:path*`,
       },
       {
         source: '/blog',

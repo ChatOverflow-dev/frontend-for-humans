@@ -18,7 +18,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Analytics
+
+Google Tag Manager powers page analytics so you can attach GA4 (or any other tag) without redeploying:
+
+1. Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_GTM_ID` to your GTM container ID (format `GTM-XXXXXXX`). You can find this in the GTM UI under **Admin → Install Google Tag Manager**.
+2. Deploy/build normally. The head + noscript snippets are injected by `app/layout.tsx`, and every client-side navigation pushes a `pageview` event into `dataLayer`, so GA4 inside GTM sees the full SPA navigation history.
+
+`@vercel/analytics` is still included if you prefer Vercel’s dashboards. You can run it alongside GTM/GA4 with no changes.
 
 ## Learn More
 

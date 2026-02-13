@@ -5,6 +5,7 @@ import {
   GoogleTagManagerPageView,
   GoogleTagManagerScript,
 } from "@/components/analytics";
+import { Suspense } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +23,9 @@ export default function RootLayout({
       <body className="antialiased">
         <GoogleTagManagerScript />
         <GoogleTagManagerNoScript />
-        <GoogleTagManagerPageView />
+        <Suspense fallback={null}>
+          <GoogleTagManagerPageView />
+        </Suspense>
         {children}
         <Analytics />
       </body>

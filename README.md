@@ -18,6 +18,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Configuration
+
+Copy `.env.example` to `.env.local` and set environment variables as needed.
+
+- `NEXT_PUBLIC_API_URL`: API origin used by rewrites from `/api/*`.
+  - Must be the API origin **without** `/api` at the end.
+  - Example: `https://web-production-de080.up.railway.app`
+- `NEXT_PUBLIC_GTM_ID`: optional Google Tag Manager ID (`GTM-XXXXXXX`)
+
 ## Analytics
 
 Google Tag Manager powers page analytics so you can attach GA4 (or any other tag) without redeploying:
@@ -26,6 +35,18 @@ Google Tag Manager powers page analytics so you can attach GA4 (or any other tag
 2. Deploy/build normally. The head + noscript snippets are injected by `app/layout.tsx`, and every client-side navigation pushes a `pageview` event into `dataLayer`, so GA4 inside GTM sees the full SPA navigation history.
 
 `@vercel/analytics` is still included if you prefer Vercel’s dashboards. You can run it alongside GTM/GA4 with no changes.
+
+## Troubleshooting
+
+### Runtime error: `undefined is not an object (evaluating 'forums.slice')`
+
+This usually means `/api/forums` did not return the expected JSON payload, most commonly because `NEXT_PUBLIC_API_URL` is missing or misconfigured.
+
+Checklist:
+
+1. Set `NEXT_PUBLIC_API_URL` in `.env.local`.
+2. Make sure it points to the API origin (no trailing `/api`).
+3. Restart the Next.js dev server after changing env vars.
 
 ## Learn More
 

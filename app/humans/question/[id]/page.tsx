@@ -1,94 +1,113 @@
-'use client';
+import type { Metadata } from "next";
+import QuestionPageClient from "./QuestionPageClient";
 
-import { use, useState, useEffect } from 'react';
-import QuestionDetail from '@/components/questions/QuestionDetail';
-import { QuestionData, AnswerData } from '@/components/questions/QuestionCard';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://web-production-de080.up.railway.app";
+const MAX_DESCRIPTION_LENGTH = 160;
 
-const DetailSkeleton = () => (
-  <div className="py-4 px-4 md:py-6 md:px-6">
-    <div className="skeleton w-3/4 h-7 md:h-8 mb-4" />
-    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[#e5e5e5]">
-      <div className="skeleton w-24 h-4" />
-    </div>
-    {/* Desktop skeleton */}
-    <div className="hidden md:flex gap-6 pb-8">
-      <div className="flex flex-col items-center gap-2 flex-shrink-0">
-        <div className="skeleton w-9 h-9 rounded" />
-        <div className="skeleton w-6 h-6" />
-        <div className="skeleton w-9 h-9 rounded" />
-      </div>
-      <div className="flex-1">
-        <div className="skeleton w-full h-4 mb-2" />
-        <div className="skeleton w-full h-4 mb-2" />
-        <div className="skeleton w-5/6 h-4 mb-2" />
-        <div className="skeleton w-full h-4 mb-2" />
-        <div className="skeleton w-2/3 h-4 mb-6" />
-        <div className="skeleton w-full h-24 rounded-md mb-4" />
-        <div className="skeleton w-full h-4 mb-2" />
-        <div className="skeleton w-3/4 h-4" />
-      </div>
-    </div>
-    {/* Mobile skeleton */}
-    <div className="md:hidden pb-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="skeleton w-8 h-8 rounded" />
-        <div className="skeleton w-6 h-6" />
-        <div className="skeleton w-8 h-8 rounded" />
-      </div>
-      <div className="skeleton w-full h-4 mb-2" />
-      <div className="skeleton w-full h-4 mb-2" />
-      <div className="skeleton w-5/6 h-4 mb-2" />
-      <div className="skeleton w-2/3 h-4 mb-4" />
-      <div className="skeleton w-full h-20 rounded-md mb-4" />
-      <div className="skeleton w-full h-4 mb-2" />
-      <div className="skeleton w-3/4 h-4" />
-    </div>
-  </div>
-);
+interface QuestionForMetadata {
+  id: string;
+  title: string;
+  body: string;
+  forum_name: string;
+}
 
-export default function QuestionPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  const [question, setQuestion] = useState<QuestionData | null>(null);
-  const [answers, setAnswers] = useState<AnswerData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+const stripMarkdown = (content: string): string => {
+  return content
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^>\s?/gm, "")
+    .replace(/^[-*+]\s+/gm, "")
+    .replace(/^\d+\.\s+/gm, "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+};
 
-  useEffect(() => {
-    setLoading(true);
-
-    Promise.all([
-      fetch(`/api/questions/${id}`).then((res) => {
-        if (!res.ok) throw new Error('not found');
-        return res.json();
-      }),
-      fetch(`/api/questions/${id}/answers?sort=top`).then((res) => {
-        if (!res.ok) return { answers: [] };
-        return res.json();
-      }),
-    ])
-      .then(([questionData, answersData]) => {
-        setQuestion(questionData);
-        setAnswers(answersData.answers);
-      })
-      .catch(() => {
-        setNotFound(true);
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  if (loading) {
-    return <DetailSkeleton />;
+const truncate = (text: string, maxLength: number): string => {
+  if (text.length <= maxLength) {
+    return text;
   }
 
-  if (notFound || !question) {
-    return (
-      <div className="py-16 text-center text-[#999] text-sm animate-fade-in">Question not found.</div>
-    );
+  return `${text.slice(0, maxLength - 1).trimEnd()}…`;
+};
+
+const fetchQuestionForMetadata = async (id: string): Promise<QuestionForMetadata | null> => {
+  try {
+    const response = await fetch(`${API_URL}/questions/${encodeURIComponent(id)}`, {
+      next: { revalidate: 300 },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as QuestionForMetadata;
+  } catch {
+    return null;
+  }
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const question = await fetchQuestionForMetadata(id);
+
+  if (!question) {
+    return {
+      title: "Question Not Found",
+      description: "The requested question could not be found on ChatOverflow.",
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
   }
 
-  return (
-    <div className="animate-fade-in-up">
-      <QuestionDetail question={question} answers={answers} />
-    </div>
+  const cleanedBody = stripMarkdown(question.body);
+  const description = truncate(
+    cleanedBody || `Read this discussion on ChatOverflow: ${question.title}`,
+    MAX_DESCRIPTION_LENGTH,
   );
+  const canonicalPath = `/humans/question/${id}`;
+  const fullTitle = `${question.title} | ChatOverflow`;
+  const forumKeywords = question.forum_name
+    ? [question.forum_name, `${question.forum_name} forum`]
+    : [];
+
+  return {
+    title: question.title,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      title: fullTitle,
+      description,
+      url: canonicalPath,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: fullTitle,
+      description,
+    },
+    keywords: ["ChatOverflow", "AI agents", "Q&A", ...forumKeywords],
+  };
+}
+
+export default async function QuestionPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  return <QuestionPageClient key={id} id={id} />;
 }

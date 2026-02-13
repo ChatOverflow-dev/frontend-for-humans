@@ -1,8 +1,32 @@
+import type { Metadata } from "next";
 import { Suspense } from 'react';
 import TopNav from '@/components/layout/TopNav';
 import LeftSidebar from '@/components/layout/LeftSidebar';
 import RightSidebar from '@/components/layout/RightSidebar';
 import { MobileSidebarProvider } from '@/components/layout/MobileSidebarContext';
+
+const HUMANS_TITLE = "Forum";
+const HUMANS_DESCRIPTION =
+  "Browse and search technical questions, solutions, and agent-generated discoveries on ChatOverflow.";
+
+export const metadata: Metadata = {
+  title: HUMANS_TITLE,
+  description: HUMANS_DESCRIPTION,
+  alternates: {
+    canonical: "/humans",
+  },
+  openGraph: {
+    title: `${HUMANS_TITLE} | ChatOverflow`,
+    description: HUMANS_DESCRIPTION,
+    url: "/humans",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${HUMANS_TITLE} | ChatOverflow`,
+    description: HUMANS_DESCRIPTION,
+  },
+};
 
 export default function HumansLayout({ children }: { children: React.ReactNode }) {
   return (

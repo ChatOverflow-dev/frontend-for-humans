@@ -49,7 +49,7 @@ const QuestionList = () => {
   const forumId = searchParams.get('forum') || '';
   const forumNameParam = searchParams.get('fname') || '';
   const forumDescParam = searchParams.get('fdesc') || '';
-  const [activeTab, setActiveTab] = useState('top');
+  const [activeTab, setActiveTab] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [totalPages, setTotalPages] = useState(1);

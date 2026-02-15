@@ -46,6 +46,8 @@ const SkeletonCard = () => (
 const QuestionList = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
+  const searchMode = searchParams.get('mode') || '';
+  const isSemantic = searchMode === 'semantic';
   const forumId = searchParams.get('forum') || '';
   const forumNameParam = searchParams.get('fname') || '';
   const forumDescParam = searchParams.get('fdesc') || '';
@@ -72,19 +74,32 @@ const QuestionList = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, forumId]);
+  }, [searchQuery, forumId, isSemantic]);
 
   useEffect(() => {
     setLoading(true);
-    let url = `/api/questions?sort=${activeTab}&page=${currentPage}`;
-    if (searchQuery) {
-      url += `&search=${encodeURIComponent(searchQuery)}`;
-    }
-    if (forumId) {
-      url += `&forum_id=${encodeURIComponent(forumId)}`;
+    let url: string;
+    if (searchQuery && isSemantic) {
+      // Semantic search endpoint — results ranked by relevance
+      url = `/api/questions/search?q=${encodeURIComponent(searchQuery)}&page=${currentPage}`;
+      if (forumId) {
+        url += `&forum_id=${encodeURIComponent(forumId)}`;
+      }
+    } else {
+      // Standard listing with sort/filter/keyword search
+      url = `/api/questions?sort=${activeTab}&page=${currentPage}`;
+      if (searchQuery) {
+        url += `&search=${encodeURIComponent(searchQuery)}`;
+      }
+      if (forumId) {
+        url += `&forum_id=${encodeURIComponent(forumId)}`;
+      }
     }
     fetch(url)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
       .then((data) => {
         setQuestions(data.questions);
         setTotalPages(data.total_pages);
@@ -102,22 +117,33 @@ const QuestionList = () => {
           if (prevTotalRef.current !== null) {
             setTotalQuestions(prevTotalRef.current);
           }
-          let lastUrl = `/api/questions?sort=${activeTab}&page=${data.total_pages}`;
-          if (searchQuery) lastUrl += `&search=${encodeURIComponent(searchQuery)}`;
-          if (forumId) lastUrl += `&forum_id=${encodeURIComponent(forumId)}`;
-          fetch(lastUrl)
-            .then((r) => r.json())
-            .then((last) => {
-              const total = (data.total_pages - 1) * perPage + last.questions.length;
-              prevTotalRef.current = total;
-              setTotalQuestions(total);
-            })
-            .catch(() => {});
+          // For semantic search, estimate total from total_pages
+          if (searchQuery && isSemantic) {
+            const total = data.total_pages * perPage;
+            prevTotalRef.current = total;
+            setTotalQuestions(total);
+          } else {
+            let lastUrl = `/api/questions?sort=${activeTab}&page=${data.total_pages}`;
+            if (searchQuery) lastUrl += `&search=${encodeURIComponent(searchQuery)}`;
+            if (forumId) lastUrl += `&forum_id=${encodeURIComponent(forumId)}`;
+            fetch(lastUrl)
+              .then((r) => r.json())
+              .then((last) => {
+                const total = (data.total_pages - 1) * perPage + last.questions.length;
+                prevTotalRef.current = total;
+                setTotalQuestions(total);
+              })
+              .catch(() => {});
+          }
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        setQuestions([]);
+        setTotalPages(1);
+        setTotalQuestions(0);
+      })
       .finally(() => setLoading(false));
-  }, [activeTab, currentPage, searchQuery, forumId]);
+  }, [activeTab, currentPage, searchQuery, isSemantic, forumId]);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -143,8 +169,10 @@ const QuestionList = () => {
       {/* Header */}
       <div key={`header-${searchQuery}-${forumId}-${activeTab}`} className="mb-4 animate-fade-in">
         <h1 className="text-xl md:text-2xl font-bold text-[#1a1a1a]">
-          {searchQuery
-            ? `Search Results for "${searchQuery}"`
+          {searchQuery && isSemantic
+            ? <>Semantic Results for &ldquo;{searchQuery}&rdquo;</>
+            : searchQuery
+            ? `Results for "${searchQuery}"`
             : forumInfo
               ? <>Questions on <span className="text-[#f48024]">c/{forumInfo.name}</span></>
               : currentTab.heading}
@@ -157,22 +185,24 @@ const QuestionList = () => {
         {totalQuestions !== null ? `${totalQuestions.toLocaleString()} questions` : '\u00A0'}
       </p>
 
-      {/* Filter tabs */}
-      <div className="flex items-center gap-1 border-b border-[#e5e5e5] pb-3">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => handleTabChange(tab.id)}
-            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-              activeTab === tab.id
-                ? 'bg-[#f1f1f1] text-[#1a1a1a] font-medium'
-                : 'text-[#999] hover:text-[#1a1a1a] hover:bg-[#f5f5f5]'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Filter tabs — hidden during semantic search (results sorted by relevance) */}
+      {!(searchQuery && isSemantic) && (
+        <div className="flex items-center gap-1 border-b border-[#e5e5e5] pb-3">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-[#f1f1f1] text-[#1a1a1a] font-medium'
+                  : 'text-[#999] hover:text-[#1a1a1a] hover:bg-[#f5f5f5]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Question List */}
       {loading ? (

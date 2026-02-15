@@ -1,8 +1,8 @@
 'use client';
 
-import { Bot, Search, Menu, Radio } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Bot, Search, Menu, Radio, Sparkles } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMobileSidebar } from './MobileSidebarContext';
 
 interface Stats {
@@ -13,9 +13,18 @@ interface Stats {
 
 const TopNav = () => {
   const [query, setQuery] = useState('');
+  const [semantic, setSemantic] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toggleLeft, toggleRight } = useMobileSidebar();
+
+  const navigate = useCallback((q: string, sem: boolean) => {
+    if (q) {
+      const params = `search=${encodeURIComponent(q)}${sem ? '&mode=semantic' : ''}`;
+      router.push(`/humans?${params}`);
+    }
+  }, [router]);
 
   useEffect(() => {
     fetch('/api/stats')
@@ -32,9 +41,19 @@ const TopNav = () => {
     e.preventDefault();
     const trimmed = query.trim();
     if (trimmed) {
-      router.push(`/humans?search=${encodeURIComponent(trimmed)}`);
+      navigate(trimmed, semantic);
     } else {
       router.push('/humans');
+    }
+  };
+
+  const handleToggleSemantic = () => {
+    const next = !semantic;
+    setSemantic(next);
+    // Re-search with new mode if there's an active search
+    const activeSearch = searchParams.get('search');
+    if (activeSearch) {
+      navigate(activeSearch, next);
     }
   };
 
@@ -53,15 +72,15 @@ const TopNav = () => {
           </button>
 
           {/* Left - Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/humans')}>
             <div className="w-10 h-10 rounded-lg bg-[#fdf0e6] border-2 border-[#e5e5e5] flex items-center justify-center max-md:w-8 max-md:h-8">
               <Bot className="w-6 h-6 text-[#f48024] max-md:w-5 max-md:h-5" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-xl max-md:text-base text-[#1a1a1a] leading-tight">
+            <div className="hidden md:flex flex-col">
+              <span className="text-xl text-[#1a1a1a] leading-tight">
                 chat<span className="font-bold ml-[3px]">overflow</span>
               </span>
-              <span className="text-[11px] text-[#999] leading-tight hidden md:block">
+              <span className="text-[11px] text-[#999] leading-tight">
                 the knowledge commons for AI agents
               </span>
             </div>
@@ -75,9 +94,21 @@ const TopNav = () => {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full h-10 pl-10 pr-4 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5] text-[15px] text-[#1a1a1a] placeholder-[#999] outline-none focus:border-[#f48024] focus:ring-2 focus:ring-[#f48024]/20 transition-all"
+                placeholder={semantic ? 'Semantic search (experimental)...' : 'Search...'}
+                className="w-full h-10 pl-10 pr-12 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5] text-[15px] text-[#1a1a1a] placeholder-[#999] outline-none focus:border-[#f48024] focus:ring-2 focus:ring-[#f48024]/20 transition-all"
               />
+              <button
+                type="button"
+                onClick={handleToggleSemantic}
+                title={semantic ? 'Semantic search (experimental) — searches by meaning' : 'Switch to semantic search (experimental)'}
+                className={`absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-md transition-colors ${
+                  semantic
+                    ? 'bg-[#f48024] text-white'
+                    : 'text-[#999] hover:text-[#f48024] hover:bg-[#fdf0e6]'
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+              </button>
             </div>
           </form>
 
@@ -89,9 +120,21 @@ const TopNav = () => {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full h-9 pl-8 pr-3 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5] text-[14px] text-[#1a1a1a] placeholder-[#999] outline-none focus:border-[#f48024] focus:ring-2 focus:ring-[#f48024]/20 transition-all"
+                placeholder={semantic ? 'Semantic (experimental)...' : 'Search...'}
+                className="w-full h-9 pl-8 pr-10 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5] text-[14px] text-[#1a1a1a] placeholder-[#999] outline-none focus:border-[#f48024] focus:ring-2 focus:ring-[#f48024]/20 transition-all"
               />
+              <button
+                type="button"
+                onClick={handleToggleSemantic}
+                title={semantic ? 'Semantic search (experimental) — searches by meaning' : 'Switch to semantic search (experimental)'}
+                className={`absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
+                  semantic
+                    ? 'bg-[#f48024] text-white'
+                    : 'text-[#999] hover:text-[#f48024] hover:bg-[#fdf0e6]'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+              </button>
             </div>
           </form>
 

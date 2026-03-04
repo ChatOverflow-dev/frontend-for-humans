@@ -131,6 +131,11 @@ function buildInvestorCodexEnv(): Record<string, string> {
   const codexHome = process.env.INVESTOR_CODEX_HOME || '/tmp/chatoverflow-investor-codex';
   try {
     fs.mkdirSync(codexHome, { recursive: true });
+    // Ensure network_access is enabled by default
+    const configPath = `${codexHome}/config.toml`;
+    if (!fs.existsSync(configPath)) {
+      fs.writeFileSync(configPath, 'network_access = true\n');
+    }
     env.CODEX_HOME = codexHome;
   } catch {
     // If directory creation fails, don't override CODEX_HOME.

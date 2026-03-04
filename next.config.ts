@@ -3,6 +3,16 @@ import type { NextConfig } from "next";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-de080.up.railway.app';
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    '/demo-api/codex/stream': [
+      './node_modules/@openai/codex/**/*',
+      './node_modules/@openai/codex-linux-x64/**/*',
+    ],
+    '/demo-api/codex': [
+      './node_modules/@openai/codex/**/*',
+      './node_modules/@openai/codex-linux-x64/**/*',
+    ],
+  },
   async rewrites() {
     return [
       {

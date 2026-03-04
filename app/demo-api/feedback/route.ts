@@ -17,9 +17,41 @@ type FeedbackMessage = {
   }>;
 };
 
+type Diagnostics = {
+  viewport?: { width: number; height: number };
+  screen?: { width: number; height: number; colorDepth: number };
+  devicePixelRatio?: number;
+  orientation?: string | null;
+  userAgent?: string;
+  platform?: string;
+  language?: string;
+  languages?: string[];
+  cookiesEnabled?: boolean;
+  touchSupport?: boolean;
+  maxTouchPoints?: number;
+  hardwareConcurrency?: number | null;
+  deviceMemory?: number | null;
+  onLine?: boolean;
+  connection?: { effectiveType?: string | null; downlink?: number | null; rtt?: number | null; saveData?: boolean } | null;
+  url?: string;
+  referrer?: string | null;
+  iframeSrc?: string;
+  timezone?: string;
+  timestamp?: string;
+  pageLoadedAt?: string | null;
+  memory?: { jsHeapSizeLimit: number; totalJSHeapSize: number; usedJSHeapSize: number } | null;
+  theme?: string;
+  mcpEnabled?: boolean;
+  isRunning?: boolean;
+  sessionCount?: number;
+  messageCount?: number;
+  errorCount?: number;
+};
+
 type FeedbackRequestBody = {
   description: string;
   contactEmail?: string;
+  diagnostics?: Diagnostics;
   sessionData: {
     threadId: string;
     model: string;
@@ -36,8 +68,52 @@ function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
+function formatDiagnosticsHtml(d: Diagnostics): string {
+  const row = (label: string, value: string | number | boolean | null | undefined) =>
+    value != null && value !== '' ? `<tr><td style="padding:2px 10px 2px 0;font-weight:600;white-space:nowrap">${label}</td><td style="font-family:monospace">${escapeHtml(String(value))}</td></tr>` : '';
+
+  const v = d.viewport;
+  const s = d.screen;
+  const c = d.connection;
+  const m = d.memory;
+
+  return `
+    <div style="margin:16px 0;padding:12px;background:#f5f8ff;border:1px solid #d0d8e8;border-radius:6px">
+      <div style="font-size:12px;font-weight:600;color:#336;margin-bottom:8px">Device &amp; Environment</div>
+      <table style="font-size:11px;color:#555;border-collapse:collapse;width:100%">
+        ${row('URL', d.url)}
+        ${row('Iframe', d.iframeSrc)}
+        ${row('Referrer', d.referrer)}
+        ${row('Viewport', v ? `${v.width} × ${v.height}` : null)}
+        ${row('Screen', s ? `${s.width} × ${s.height} (${s.colorDepth}-bit)` : null)}
+        ${row('DPR', d.devicePixelRatio)}
+        ${row('Orientation', d.orientation)}
+        ${row('User Agent', d.userAgent)}
+        ${row('Platform', d.platform)}
+        ${row('Language', d.language)}
+        ${row('Languages', d.languages?.join(', '))}
+        ${row('Touch', d.touchSupport ? `Yes (${d.maxTouchPoints} points)` : 'No')}
+        ${row('CPU Cores', d.hardwareConcurrency)}
+        ${row('Device Memory', d.deviceMemory ? `${d.deviceMemory} GB` : null)}
+        ${row('Online', d.onLine)}
+        ${row('Network', c ? `${c.effectiveType || '?'} · ${c.downlink ?? '?'} Mbps · ${c.rtt ?? '?'}ms RTT${c.saveData ? ' · Data Saver' : ''}` : null)}
+        ${row('Timezone', d.timezone)}
+        ${row('Page Loaded', d.pageLoadedAt)}
+        ${row('Reported At', d.timestamp)}
+        ${row('JS Heap', m ? `${(m.usedJSHeapSize / 1048576).toFixed(1)} / ${(m.totalJSHeapSize / 1048576).toFixed(1)} MB (limit ${(m.jsHeapSizeLimit / 1048576).toFixed(0)} MB)` : null)}
+        ${row('Theme', d.theme)}
+        ${row('MCP', d.mcpEnabled ? 'Enabled' : 'Disabled')}
+        ${row('Agent Running', d.isRunning ? 'Yes' : 'No')}
+        ${row('Sessions', d.sessionCount)}
+        ${row('Messages', d.messageCount)}
+        ${row('Errors', d.errorCount)}
+        ${row('Cookies', d.cookiesEnabled)}
+      </table>
+    </div>`;
+}
+
 function formatEmailHtml(body: FeedbackRequestBody): string {
-  const { description, contactEmail, sessionData } = body;
+  const { description, contactEmail, diagnostics, sessionData } = body;
   const { threadId, model, sessionTitle, messages } = sessionData;
 
   let messagesHtml = '';
@@ -88,6 +164,8 @@ function formatEmailHtml(body: FeedbackRequestBody): string {
         <tr><td style="padding:2px 12px 2px 0;font-weight:600">Messages</td><td>${messages.length}</td></tr>
         <tr><td style="padding:2px 12px 2px 0;font-weight:600">Reported</td><td>${new Date().toISOString()}</td></tr>
       </table>
+
+      ${diagnostics ? formatDiagnosticsHtml(diagnostics) : ''}
 
       <h3 style="color:#1a1a1a;margin-top:24px">Chat Transcript</h3>
       ${messagesHtml}

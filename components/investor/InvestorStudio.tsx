@@ -671,6 +671,66 @@ export default function InvestorStudio() {
     });
   };
 
+  const collectDiagnostics = () => {
+    const nav = navigator as unknown as Record<string, unknown>;
+    const conn = (nav.connection || nav.mozConnection || nav.webkitConnection) as Record<string, unknown> | undefined;
+    const perf = performance as unknown as Record<string, unknown>;
+    const mem = perf.memory as Record<string, number> | undefined;
+    const entries = performance.getEntriesByType?.('navigation') as PerformanceNavigationTiming[] | undefined;
+    const navTiming = entries?.[0];
+
+    return {
+      // Screen & viewport
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+      screen: { width: screen.width, height: screen.height, colorDepth: screen.colorDepth },
+      devicePixelRatio: window.devicePixelRatio,
+      orientation: screen.orientation?.type || null,
+
+      // Browser & device
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      language: navigator.language,
+      languages: [...(navigator.languages || [])],
+      cookiesEnabled: navigator.cookieEnabled,
+      touchSupport: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+      maxTouchPoints: navigator.maxTouchPoints || 0,
+      hardwareConcurrency: navigator.hardwareConcurrency || null,
+      deviceMemory: (nav.deviceMemory as number) || null,
+
+      // Network
+      onLine: navigator.onLine,
+      connection: conn ? {
+        effectiveType: conn.effectiveType || null,
+        downlink: conn.downlink || null,
+        rtt: conn.rtt || null,
+        saveData: conn.saveData || false,
+      } : null,
+
+      // Page context
+      url: window.location.href,
+      referrer: document.referrer || null,
+      iframeSrc,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timestamp: new Date().toISOString(),
+      pageLoadedAt: navTiming ? new Date(navTiming.startTime + performance.timeOrigin).toISOString() : null,
+
+      // Memory (Chrome only)
+      memory: mem ? {
+        jsHeapSizeLimit: mem.jsHeapSizeLimit,
+        totalJSHeapSize: mem.totalJSHeapSize,
+        usedJSHeapSize: mem.usedJSHeapSize,
+      } : null,
+
+      // App state
+      theme,
+      mcpEnabled,
+      isRunning,
+      sessionCount: sessions.length,
+      messageCount: messages.length,
+      errorCount: messages.filter((m) => m.role === 'assistant' && /error|failed|stopped/i.test(m.text)).length,
+    };
+  };
+
   const submitReport = async () => {
     if (!reportDescription.trim()) return;
     setReportStatus('sending');
@@ -681,6 +741,7 @@ export default function InvestorStudio() {
         body: JSON.stringify({
           description: reportDescription.trim(),
           contactEmail: reportEmail.trim() || undefined,
+          diagnostics: collectDiagnostics(),
           sessionData: {
             threadId,
             model,
@@ -706,7 +767,7 @@ export default function InvestorStudio() {
     <div className={`xl:h-screen xl:overflow-hidden overflow-y-auto ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
       <div className="xl:h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.55fr)] gap-3 md:gap-4 xl:h-full">
-          <section className={`rounded-xl border p-3 md:p-4 flex flex-col min-h-[60svh] xl:min-h-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
+          <section className={`rounded-xl border p-3 md:p-4 flex flex-col h-[60svh] xl:h-auto xl:min-h-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
             <div className="mb-2.5 flex items-center justify-between gap-2">
               <div className={`text-[11px] border rounded-md px-2.5 py-1.5 ${terminal ? 'text-[#9bb5a5] border-[#2a313d] bg-[#0c1119]' : 'text-[#666] border-[#eee] bg-[#fafafa]'}`}>
                 Session: <span className={`${terminal ? 'text-[#d8e0d8]' : 'text-[#1a1a1a]'}`}>{activeSession?.title || 'New session'}</span>

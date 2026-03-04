@@ -371,6 +371,9 @@ export default function InvestorStudio() {
   const [reportStatus, setReportStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [reportError, setReportError] = useState('');
 
+  const [splitPercent, setSplitPercent] = useState(38);
+  const isDraggingRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const clickTrailRef = useRef<Array<{ t: string; x: number; y: number; tag: string; text: string }>>([]);
   const consoleErrorsRef = useRef<Array<{ t: string; type: string; message: string }>>([]);
 
@@ -420,6 +423,29 @@ export default function InvestorStudio() {
     return () => {
       window.removeEventListener('error', onError);
       window.removeEventListener('unhandledrejection', onRejection);
+    };
+  }, []);
+
+  // Draggable divider for resizing panels
+  useEffect(() => {
+    const onMove = (clientX: number) => {
+      if (!isDraggingRef.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const pct = ((clientX - rect.left) / rect.width) * 100;
+      setSplitPercent(Math.min(70, Math.max(20, pct)));
+    };
+    const onMouseMove = (e: MouseEvent) => { onMove(e.clientX); };
+    const onTouchMove = (e: TouchEvent) => { onMove(e.touches[0].clientX); };
+    const onUp = () => { isDraggingRef.current = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('touchmove', onTouchMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchend', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchend', onUp);
     };
   }, []);
 
@@ -823,9 +849,14 @@ export default function InvestorStudio() {
   return (
     <div className={`xl:h-screen xl:overflow-hidden overflow-y-auto ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
       <div className="xl:h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.55fr)] gap-3 md:gap-4 xl:h-full">
-          <section className={`rounded-xl border p-3 md:p-4 flex flex-col h-[60svh] xl:h-auto xl:min-h-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
-            <div className="mb-2.5 flex items-center justify-between gap-2">
+        <div ref={containerRef} className="flex flex-col xl:flex-row gap-3 md:gap-0 xl:h-full">
+          <section style={{ flexBasis: `${splitPercent}%` }} className={`rounded-xl border p-3 md:p-4 flex flex-col h-[60svh] xl:h-auto xl:min-h-0 shrink-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
+            <div className={`mb-1.5 text-sm font-bold flex items-center gap-2 ${terminal ? 'text-[#8de3bd]' : 'text-[#1a1a1a]'}`}>
+              Codex
+              <span className={`${terminal ? 'text-[#2a313d]' : 'text-[#ddd]'}`}>|</span>
+              <span className={`font-bold ${terminal ? 'text-[#d6deea]' : 'text-[#444]'}`}>Claude Code</span>
+            </div>
+            <div className={`mb-2.5 flex items-center justify-between gap-2 pt-1.5 border-t ${terminal ? 'border-[#2a313d]' : 'border-[#e8e8e8]'}`}>
               <div className={`text-[11px] border rounded-md px-2.5 py-1.5 ${terminal ? 'text-[#9bb5a5] border-[#2a313d] bg-[#0c1119]' : 'text-[#666] border-[#eee] bg-[#fafafa]'}`}>
                 Session: <span className={`${terminal ? 'text-[#d8e0d8]' : 'text-[#1a1a1a]'}`}>{activeSession?.title || 'New session'}</span>
                 {' · '}
@@ -1022,7 +1053,16 @@ export default function InvestorStudio() {
             </div>
           </section>
 
-          <section className="relative min-h-[100svh] xl:min-h-0">
+          {/* Draggable divider */}
+          <div
+            className={`hidden xl:flex items-center justify-center w-3 cursor-col-resize group shrink-0 mx-1`}
+            onMouseDown={() => { isDraggingRef.current = true; document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; }}
+            onTouchStart={() => { isDraggingRef.current = true; document.body.style.userSelect = 'none'; }}
+          >
+            <div className={`w-1 h-12 rounded-full transition-colors ${terminal ? 'bg-[#2a313d] group-hover:bg-[#3f4f5f]' : 'bg-[#ddd] group-hover:bg-[#bbb]'}`} />
+          </div>
+
+          <section className="relative min-h-[100svh] xl:min-h-0 flex flex-col flex-1 min-w-0">
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -1033,16 +1073,19 @@ export default function InvestorStudio() {
               <ChevronLeft className="w-3 h-3 rotate-90" />
               Back to Codex Chat
             </button>
-            <a
-              href={iframeSrc}
-              target="_blank"
-              rel="noreferrer"
-              className="absolute top-3 right-3 xl:top-3 z-20 inline-flex items-center gap-1 rounded-full bg-[#f48024] text-white px-3 py-1.5 text-[11px] font-medium shadow-sm hover:bg-[#db6f1d]"
-            >
-              Open Full View
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-            <div className={`h-[calc(100%-40px)] xl:h-full rounded-lg border overflow-hidden min-h-0 ${terminal ? 'border-[#2a313d] bg-[#0c1119]' : 'border-[#ececec] bg-white'}`}>
+            <div className={`mb-1.5 text-sm font-bold flex items-center justify-between ${terminal ? 'text-[#f48024]' : 'text-[#1a1a1a]'}`}>
+              ChatOverflow
+              <a
+                href={iframeSrc}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-full bg-[#f48024] text-white px-3 py-1.5 text-[11px] font-medium shadow-sm hover:bg-[#db6f1d]"
+              >
+                Open Full View
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+            <div className={`flex-1 rounded-lg border overflow-hidden min-h-0 ${terminal ? 'border-[#2a313d] bg-[#0c1119]' : 'border-[#ececec] bg-white'}`}>
               <iframe
                 title="ChatOverflow"
                 src={iframeSrc}

@@ -56,7 +56,10 @@ function DemoGate() {
       });
       const data = await res.json();
       if (data.ok) {
-        router.replace(`/demo?pwd=${encodeURIComponent(trimmed)}`);
+        // Preserve existing utm_source or default to the password for tracking
+        const existingUtm = searchParams.get('utm_source');
+        const utm = existingUtm || trimmed;
+        router.replace(`/demo?pwd=${encodeURIComponent(trimmed)}&utm_source=${encodeURIComponent(utm)}`);
         setAuthed(true);
       } else {
         setError(true);

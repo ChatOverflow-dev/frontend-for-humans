@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import { Codex } from '@openai/codex-sdk';
 import type { ApprovalMode, SandboxMode, WebSearchMode } from '@openai/codex-sdk';
 import type { ThreadItem } from '@openai/codex-sdk';
@@ -143,6 +144,40 @@ function buildInvestorCodexEnv(): Record<string, string> {
   return env;
 }
 
+/** Resolve the Codex CLI binary path, handling Vercel's bundled layout. */
+function findCodexBinaryPath(): string | undefined {
+  const { platform, arch } = process;
+  const targets: Record<string, { pkg: string; triple: string }> = {
+    'linux-x64': { pkg: '@openai/codex-linux-x64', triple: 'x86_64-unknown-linux-musl' },
+    'linux-arm64': { pkg: '@openai/codex-linux-arm64', triple: 'aarch64-unknown-linux-musl' },
+    'darwin-x64': { pkg: '@openai/codex-darwin-x64', triple: 'x86_64-apple-darwin' },
+    'darwin-arm64': { pkg: '@openai/codex-darwin-arm64', triple: 'aarch64-apple-darwin' },
+  };
+  const target = targets[`${platform}-${arch}`];
+  if (!target) return undefined;
+
+  // Try resolving the platform package directly
+  try {
+    const pkgPath = require.resolve(`${target.pkg}/package.json`);
+    const vendorDir = path.join(path.dirname(pkgPath), 'vendor', target.triple, 'codex');
+    const bin = path.join(vendorDir, 'codex');
+    if (fs.existsSync(bin)) return bin;
+  } catch {}
+
+  // Fallback: resolve through @openai/codex (how the SDK does it)
+  try {
+    const { createRequire } = require('module');
+    const codexPkg = require.resolve('@openai/codex/package.json');
+    const codexRequire = createRequire(codexPkg);
+    const platformPkg = codexRequire.resolve(`${target.pkg}/package.json`);
+    const vendorDir = path.join(path.dirname(platformPkg), 'vendor', target.triple, 'codex');
+    const bin = path.join(vendorDir, 'codex');
+    if (fs.existsSync(bin)) return bin;
+  } catch {}
+
+  return undefined;
+}
+
 export function createInvestorCodex(input: InvestorRunInput): Codex {
   const apiKey = getInvestorCodexApiKey();
   if (!apiKey) {
@@ -153,6 +188,7 @@ export function createInvestorCodex(input: InvestorRunInput): Codex {
 
   return new Codex({
     apiKey,
+    codexPathOverride: findCodexBinaryPath(),
     baseUrl: process.env.OPENAI_BASE_URL,
     env: buildInvestorCodexEnv(),
     config: getInvestorCodexConfig(input) as any,

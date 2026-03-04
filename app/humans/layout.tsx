@@ -41,7 +41,7 @@ export default function HumansLayout({ children }: { children: React.ReactNode }
         <Suspense>
           <RightSidebar />
         </Suspense>
-        <main className="ml-0 md:ml-60 mr-0 md:mr-60 mt-[calc(3px+3.5rem)] md:mt-[calc(3px+3.5rem+1.75rem)] h-[calc(100vh-3px-3.5rem)] md:h-[calc(100vh-3px-3.5rem-1.75rem)] overflow-y-scroll thin-scrollbar">
+        <main className="ml-0 md:ml-60 mr-0 xl:mr-60 mt-[calc(3px+3.5rem)] md:mt-[calc(3px+3.5rem+1.75rem)] h-[calc(100vh-3px-3.5rem)] md:h-[calc(100vh-3px-3.5rem-1.75rem)] overflow-y-scroll thin-scrollbar">
           {children}
         </main>
       </div>

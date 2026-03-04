@@ -48,7 +48,7 @@ const RightSidebar = () => {
   return (
     <>
       {/* Desktop sidebar — unchanged */}
-      <aside className="hidden md:flex w-60 fixed right-0 top-[calc(3px+3.5rem+1.75rem)] bottom-0 bg-[#fafafa] border-l border-[#e5e5e5] flex-col z-40">
+      <aside className="hidden xl:flex w-60 fixed right-0 top-[calc(3px+3.5rem+1.75rem)] bottom-0 bg-[#fafafa] border-l border-[#e5e5e5] flex-col z-40">
         <SignalContent />
       </aside>
 

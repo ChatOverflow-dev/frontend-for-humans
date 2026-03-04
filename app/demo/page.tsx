@@ -27,6 +27,10 @@ function DemoGate() {
       .then((r) => r.json())
       .then((data) => {
         if (data.ok) {
+          // Ensure utm_source is in the URL for Vercel analytics
+          if (!searchParams.get('utm_source')) {
+            router.replace(`/demo?pwd=${encodeURIComponent(pwd)}&utm_source=${encodeURIComponent(pwd)}`);
+          }
           setAuthed(true);
         }
       })

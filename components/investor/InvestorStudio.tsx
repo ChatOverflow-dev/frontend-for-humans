@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, ChevronLeft, Download, ExternalLink, History, RefreshCw, Send, Wrench } from 'lucide-react';
+import { Bug, ChevronDown, ChevronLeft, Download, ExternalLink, History, RefreshCw, Send, Wrench } from 'lucide-react';
 import { DEMO_SESSIONS } from './demoSessions';
 
 type ToolTrace = {
@@ -365,6 +365,11 @@ export default function InvestorStudio() {
   const [iframeSrc, setIframeSrc] = useState('/humans');
   const streamAbortRef = useRef<AbortController | null>(null);
   const pendingMessageIdRef = useRef<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportDescription, setReportDescription] = useState('');
+  const [reportEmail, setReportEmail] = useState('');
+  const [reportStatus, setReportStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [reportError, setReportError] = useState('');
 
   const terminal = theme === 'terminal';
   const activeSession = sessions.find((session) => session.id === threadId);
@@ -666,6 +671,37 @@ export default function InvestorStudio() {
     });
   };
 
+  const submitReport = async () => {
+    if (!reportDescription.trim()) return;
+    setReportStatus('sending');
+    try {
+      const res = await fetch('/demo-api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: reportDescription.trim(),
+          contactEmail: reportEmail.trim() || undefined,
+          sessionData: {
+            threadId,
+            model,
+            sessionTitle: activeSession?.title || 'New session',
+            messages,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setReportStatus('success');
+      } else {
+        setReportStatus('error');
+        setReportError(data.error || 'Failed to send report.');
+      }
+    } catch (err) {
+      setReportStatus('error');
+      setReportError(err instanceof Error ? err.message : 'Network error.');
+    }
+  };
+
   return (
     <div className={`h-screen overflow-hidden ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
       <div className="h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
@@ -684,6 +720,14 @@ export default function InvestorStudio() {
                   className={`px-2 py-1 rounded-md text-[11px] border ${terminal ? 'border-[#2f5f4f] text-[#8de3bd] hover:bg-[#173126]' : 'border-[#ddd] text-[#444] hover:bg-[#fafafa]'}`}
                 >
                   Theme: {terminal ? 'Terminal' : 'Default'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setReportOpen(true); setReportStatus('idle'); setReportError(''); setReportDescription(''); setReportEmail(''); }}
+                  className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[11px] ${terminal ? 'border-[#2a313d] text-[#a9b8c9] hover:bg-[#151d2a]' : 'border-[#ddd] text-[#444] hover:bg-[#fafafa]'}`}
+                >
+                  <Bug className="w-3.5 h-3.5" />
+                  Report
                 </button>
                 <button
                   type="button"
@@ -969,6 +1013,92 @@ export default function InvestorStudio() {
             </div>
           </div>
         </aside>
+      </div>
+
+      {/* Report Issue Modal */}
+      <div
+        className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-200 ${
+          reportOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="absolute inset-0 bg-black/25" onClick={() => setReportOpen(false)} />
+        <div className={`relative w-[90vw] max-w-[460px] rounded-xl border p-5 shadow-lg ${
+          terminal ? 'bg-[#0f141d] border-[#2a313d]' : 'bg-white border-[#e7e7e7]'
+        }`}>
+          {reportStatus === 'success' ? (
+            <div className="text-center py-4">
+              <div className={`text-lg font-semibold mb-2 ${terminal ? 'text-[#8de3bd]' : 'text-[#1f7a53]'}`}>
+                Report Sent
+              </div>
+              <p className={`text-sm mb-4 ${terminal ? 'text-[#a9b8c9]' : 'text-[#666]'}`}>
+                Thanks for reporting! We&apos;ll look into it.
+              </p>
+              <button
+                type="button"
+                onClick={() => setReportOpen(false)}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  terminal ? 'bg-[#1f7a53] text-[#d9ffe9] hover:bg-[#246b49]' : 'bg-[#f48024] text-white hover:bg-[#db6f1d]'
+                }`}
+              >
+                Close
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={(e) => { e.preventDefault(); submitReport(); }}>
+              <h2 className={`text-sm font-semibold mb-3 ${terminal ? 'text-[#d6deea]' : 'text-[#111]'}`}>
+                Report an Issue
+              </h2>
+              <textarea
+                value={reportDescription}
+                onChange={(e) => setReportDescription(e.target.value)}
+                rows={4}
+                placeholder="What went wrong? Describe the issue..."
+                className={`w-full rounded-md border px-2.5 py-2 text-[13px] outline-none focus:ring-2 mb-3 ${
+                  terminal
+                    ? 'border-[#2a313d] bg-[#090d14] text-[#d8e0d8] focus:ring-[#1f7a53]/35 focus:border-[#2f6a54] font-mono placeholder:text-[#555]'
+                    : 'border-[#ddd] bg-white text-[#1a1a1a] focus:ring-[#777]/20 focus:border-[#777] placeholder:text-[#aaa]'
+                }`}
+              />
+              <input
+                type="email"
+                value={reportEmail}
+                onChange={(e) => setReportEmail(e.target.value)}
+                placeholder="Your email (optional, for follow-up)"
+                className={`w-full rounded-md border px-2.5 py-2 text-[13px] outline-none focus:ring-2 mb-2 ${
+                  terminal
+                    ? 'border-[#2a313d] bg-[#090d14] text-[#d8e0d8] focus:ring-[#1f7a53]/35 focus:border-[#2f6a54] font-mono placeholder:text-[#555]'
+                    : 'border-[#ddd] bg-white text-[#1a1a1a] focus:ring-[#777]/20 focus:border-[#777] placeholder:text-[#aaa]'
+                }`}
+              />
+              <p className={`text-[11px] mb-4 ${terminal ? 'text-[#8ea0b8]' : 'text-[#999]'}`}>
+                The current chat session ({messages.length} messages) will be included automatically.
+              </p>
+              {reportStatus === 'error' && (
+                <p className="text-[12px] text-[#e55] mb-3">{reportError}</p>
+              )}
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setReportOpen(false)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium border ${
+                    terminal ? 'border-[#2a313d] text-[#a9b8c9] hover:bg-[#151d2a]' : 'border-[#ddd] text-[#444] hover:bg-[#fafafa]'
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={reportStatus === 'sending' || !reportDescription.trim()}
+                  className={`px-4 py-1.5 rounded-md text-xs font-medium transition-colors disabled:opacity-60 ${
+                    terminal ? 'bg-[#1f7a53] text-[#d9ffe9] hover:bg-[#246b49]' : 'bg-[#f48024] text-white hover:bg-[#db6f1d]'
+                  }`}
+                >
+                  {reportStatus === 'sending' ? 'Sending...' : 'Send Report'}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

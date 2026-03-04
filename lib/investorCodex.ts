@@ -161,73 +161,49 @@ function findCodexBinaryPath(): string | undefined {
   }
 
   console.log(`[codex-binary] Resolving for ${key} → ${target.pkg}`);
+  const binName = platform === 'win32' ? 'codex.exe' : 'codex';
 
-  // Strategy 1: resolve platform package directly
-  try {
-    const pkgPath = require.resolve(`${target.pkg}/package.json`);
-    console.log(`[codex-binary] Strategy 1: package.json at ${pkgPath}`);
-    const vendorDir = path.join(path.dirname(pkgPath), 'vendor', target.triple, 'codex');
-    const bin = path.join(vendorDir, 'codex');
-    const exists = fs.existsSync(bin);
-    console.log(`[codex-binary] Strategy 1: binary at ${bin} exists=${exists}`);
-    if (exists) {
-      try { fs.chmodSync(bin, 0o755); } catch {}
-      return bin;
+  // Build candidate paths manually (require.resolve returns numeric module IDs on Vercel)
+  const candidates = [
+    path.join(process.cwd(), 'node_modules', target.pkg.replace('@openai/', '@openai/'), 'vendor', target.triple, 'codex', binName),
+    path.join(__dirname, '..', 'node_modules', target.pkg.replace('@openai/', '@openai/'), 'vendor', target.triple, 'codex', binName),
+    path.join(process.cwd(), 'node_modules', '@openai', 'codex-' + key, 'vendor', target.triple, 'codex', binName),
+  ];
+
+  for (const candidate of candidates) {
+    console.log(`[codex-binary] Checking: ${candidate}`);
+    if (fs.existsSync(candidate)) {
+      console.log(`[codex-binary] Found binary at ${candidate}`);
+      try { fs.chmodSync(candidate, 0o755); } catch {}
+      return candidate;
     }
-    // List what's actually in the package directory
-    try {
-      const pkgDir = path.dirname(pkgPath);
-      console.log(`[codex-binary] Strategy 1: contents of ${pkgDir}:`, fs.readdirSync(pkgDir));
-      const vendorExists = fs.existsSync(path.join(pkgDir, 'vendor'));
-      console.log(`[codex-binary] Strategy 1: vendor dir exists=${vendorExists}`);
-      if (vendorExists) {
-        console.log(`[codex-binary] Strategy 1: vendor contents:`, fs.readdirSync(path.join(pkgDir, 'vendor')));
+  }
+
+  // List what's actually in the platform package directory for debugging
+  try {
+    const pkgDir = path.join(process.cwd(), 'node_modules', '@openai', `codex-${key}`);
+    if (fs.existsSync(pkgDir)) {
+      console.log(`[codex-binary] Package dir ${pkgDir} contents:`, fs.readdirSync(pkgDir));
+      const vendorDir = path.join(pkgDir, 'vendor');
+      if (fs.existsSync(vendorDir)) {
+        console.log(`[codex-binary] Vendor contents:`, fs.readdirSync(vendorDir));
+        const tripleDir = path.join(vendorDir, target.triple);
+        if (fs.existsSync(tripleDir)) {
+          console.log(`[codex-binary] Triple dir contents:`, fs.readdirSync(tripleDir));
+        }
       }
-    } catch (e) {
-      console.log(`[codex-binary] Strategy 1: listing failed:`, e);
-    }
-  } catch (e) {
-    console.log(`[codex-binary] Strategy 1 failed:`, e instanceof Error ? e.message : e);
-  }
-
-  // Strategy 2: resolve through @openai/codex (how the SDK does it)
-  try {
-    const { createRequire } = require('module');
-    const codexPkg = require.resolve('@openai/codex/package.json');
-    console.log(`[codex-binary] Strategy 2: @openai/codex at ${codexPkg}`);
-    const codexRequire = createRequire(codexPkg);
-    const platformPkg = codexRequire.resolve(`${target.pkg}/package.json`);
-    console.log(`[codex-binary] Strategy 2: platform pkg at ${platformPkg}`);
-    const vendorDir = path.join(path.dirname(platformPkg), 'vendor', target.triple, 'codex');
-    const bin = path.join(vendorDir, 'codex');
-    const exists = fs.existsSync(bin);
-    console.log(`[codex-binary] Strategy 2: binary at ${bin} exists=${exists}`);
-    if (exists) {
-      try { fs.chmodSync(bin, 0o755); } catch {}
-      return bin;
-    }
-  } catch (e) {
-    console.log(`[codex-binary] Strategy 2 failed:`, e instanceof Error ? e.message : e);
-  }
-
-  // Strategy 3: scan node_modules for the binary
-  try {
-    const nmDir = path.join(process.cwd(), 'node_modules', '@openai');
-    if (fs.existsSync(nmDir)) {
-      console.log(`[codex-binary] Strategy 3: @openai packages:`, fs.readdirSync(nmDir));
     } else {
-      console.log(`[codex-binary] Strategy 3: ${nmDir} does not exist`);
-      // Try __dirname based path
-      const altNm = path.join(__dirname, '..', 'node_modules', '@openai');
-      if (fs.existsSync(altNm)) {
-        console.log(`[codex-binary] Strategy 3: __dirname @openai packages:`, fs.readdirSync(altNm));
+      console.log(`[codex-binary] Package dir ${pkgDir} does not exist`);
+      const openaiDir = path.join(process.cwd(), 'node_modules', '@openai');
+      if (fs.existsSync(openaiDir)) {
+        console.log(`[codex-binary] @openai packages:`, fs.readdirSync(openaiDir));
       }
     }
   } catch (e) {
-    console.log(`[codex-binary] Strategy 3 failed:`, e instanceof Error ? e.message : e);
+    console.log(`[codex-binary] Debug listing failed:`, e instanceof Error ? e.message : e);
   }
 
-  console.error(`[codex-binary] All strategies failed for ${key}`);
+  console.error(`[codex-binary] All candidates failed for ${key}`);
   return undefined;
 }
 

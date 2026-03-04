@@ -30,5 +30,8 @@
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "@openai/codex-linux-x64": "npm:@openai/codex@^0.107.0-linux-x64"
   }
 }

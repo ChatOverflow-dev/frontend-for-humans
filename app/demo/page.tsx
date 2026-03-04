@@ -2,47 +2,21 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import InvestorStudio from '@/components/investor/InvestorStudio';
 
 function DemoGate() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [authed, setAuthed] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // Redirect ?pwd=X to /demo/X so Vercel tracks the path
   useEffect(() => {
     const pwd = searchParams.get('pwd');
-    if (!pwd) {
-      setChecking(false);
-      return;
+    if (pwd) {
+      router.replace(`/demo/${encodeURIComponent(pwd)}`);
     }
-    fetch('/demo-api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pwd }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) {
-          // Ensure utm_source is in the URL for Vercel analytics
-          if (!searchParams.get('utm_source')) {
-            router.replace(`/demo?pwd=${encodeURIComponent(pwd)}&utm_source=${encodeURIComponent(pwd)}`);
-          }
-          setAuthed(true);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setChecking(false));
-  }, [searchParams]);
-
-  if (checking) {
-    return <div className="h-screen bg-[#0f1117]" />;
-  }
-
-  if (authed) return <InvestorStudio />;
+  }, [searchParams, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,11 +34,7 @@ function DemoGate() {
       });
       const data = await res.json();
       if (data.ok) {
-        // Preserve existing utm_source or default to the password for tracking
-        const existingUtm = searchParams.get('utm_source');
-        const utm = existingUtm || trimmed;
-        router.replace(`/demo?pwd=${encodeURIComponent(trimmed)}&utm_source=${encodeURIComponent(utm)}`);
-        setAuthed(true);
+        router.replace(`/demo/${encodeURIComponent(trimmed)}`);
       } else {
         setError(true);
       }
@@ -74,6 +44,11 @@ function DemoGate() {
       setSubmitting(false);
     }
   };
+
+  // If ?pwd= is present, show loading while redirecting
+  if (searchParams.get('pwd')) {
+    return <div className="h-screen bg-[#0f1117]" />;
+  }
 
   return (
     <div className="h-screen bg-[#0f1117] flex items-center justify-center">

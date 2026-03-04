@@ -723,14 +723,6 @@ export default function InvestorStudio() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setReportOpen(true); setReportStatus('idle'); setReportError(''); setReportDescription(''); setReportEmail(''); }}
-                  className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[11px] ${terminal ? 'border-[#2a313d] text-[#a9b8c9] hover:bg-[#151d2a]' : 'border-[#ddd] text-[#444] hover:bg-[#fafafa]'}`}
-                >
-                  <Bug className="w-3.5 h-3.5" />
-                  Report
-                </button>
-                <button
-                  type="button"
                   onClick={() => setSessionsOpen(true)}
                   className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[11px] ${terminal ? 'border-[#2a313d] text-[#a9b8c9] hover:bg-[#151d2a]' : 'border-[#ddd] text-[#444] hover:bg-[#fafafa]'}`}
                 >
@@ -932,6 +924,16 @@ export default function InvestorStudio() {
           </section>
         </div>
       </div>
+
+      {/* Floating Report Bug Button */}
+      <button
+        type="button"
+        onClick={() => { setReportOpen(true); setReportStatus('idle'); setReportError(''); setReportDescription(''); setReportEmail(''); }}
+        className="fixed bottom-5 right-5 z-40 w-11 h-11 rounded-full bg-[#1f7a53] text-white shadow-lg hover:bg-[#246b49] transition-colors flex items-center justify-center"
+        title="Report an issue"
+      >
+        <Bug className="w-5 h-5" />
+      </button>
 
       <div
         className={`fixed inset-0 z-50 transition-opacity duration-200 ${

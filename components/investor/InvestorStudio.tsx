@@ -703,10 +703,10 @@ export default function InvestorStudio() {
   };
 
   return (
-    <div className={`h-screen overflow-hidden ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
-      <div className="h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.55fr)] gap-3 md:gap-4 h-full">
-          <section className={`rounded-xl border p-3 md:p-4 flex flex-col min-h-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
+    <div className={`xl:h-screen xl:overflow-hidden overflow-y-auto ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
+      <div className="xl:h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.55fr)] gap-3 md:gap-4 xl:h-full">
+          <section className={`rounded-xl border p-3 md:p-4 flex flex-col min-h-[100svh] xl:min-h-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
             <div className="mb-2.5 flex items-center justify-between gap-2">
               <div className={`text-[11px] border rounded-md px-2.5 py-1.5 ${terminal ? 'text-[#9bb5a5] border-[#2a313d] bg-[#0c1119]' : 'text-[#666] border-[#eee] bg-[#fafafa]'}`}>
                 Session: <span className={`${terminal ? 'text-[#d8e0d8]' : 'text-[#1a1a1a]'}`}>{activeSession?.title || 'New session'}</span>
@@ -904,7 +904,7 @@ export default function InvestorStudio() {
             </div>
           </section>
 
-          <section className="relative min-h-0">
+          <section className="relative min-h-[100svh] xl:min-h-0">
             <a
               href={iframeSrc}
               target="_blank"

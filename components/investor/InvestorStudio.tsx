@@ -847,10 +847,10 @@ export default function InvestorStudio() {
   };
 
   return (
-    <div className={`xl:h-screen xl:overflow-hidden overflow-y-auto ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
-      <div className="xl:h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
-        <div ref={containerRef} className="flex flex-col xl:flex-row gap-3 md:gap-0 xl:h-full">
-          <section style={{ flexBasis: `${splitPercent}%` }} className={`rounded-xl border p-3 md:p-4 flex flex-col h-[60svh] xl:h-auto xl:min-h-0 shrink-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
+    <div className={`lg:h-screen lg:overflow-hidden overflow-y-auto ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
+      <div className="lg:h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
+        <div ref={containerRef} className="flex flex-col lg:flex-row gap-3 md:gap-0 lg:h-full">
+          <section style={{ flexBasis: `${splitPercent}%` }} className={`rounded-xl border p-3 md:p-4 flex flex-col h-[60svh] lg:h-auto lg:min-h-0 shrink-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
             <div className={`mb-1.5 text-sm font-bold flex items-center gap-2 ${terminal ? 'text-[#8de3bd]' : 'text-[#1a1a1a]'}`}>
               Codex
               <span className={`${terminal ? 'text-[#2a313d]' : 'text-[#ddd]'}`}>|</span>
@@ -1055,18 +1055,18 @@ export default function InvestorStudio() {
 
           {/* Draggable divider */}
           <div
-            className={`hidden xl:flex items-center justify-center w-3 cursor-col-resize group shrink-0 mx-1`}
+            className={`hidden lg:flex items-center justify-center w-3 cursor-col-resize group shrink-0 mx-1`}
             onMouseDown={() => { isDraggingRef.current = true; document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; }}
             onTouchStart={() => { isDraggingRef.current = true; document.body.style.userSelect = 'none'; }}
           >
             <div className={`w-1 h-12 rounded-full transition-colors ${terminal ? 'bg-[#2a313d] group-hover:bg-[#3f4f5f]' : 'bg-[#ddd] group-hover:bg-[#bbb]'}`} />
           </div>
 
-          <section className="relative min-h-[100svh] xl:min-h-0 flex flex-col flex-1 min-w-0">
+          <section className="relative min-h-[100svh] lg:min-h-0 flex flex-col flex-1 min-w-0">
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className={`xl:hidden flex items-center justify-center gap-1.5 w-full py-2 mb-2 rounded-lg text-[11px] font-medium ${
+              className={`lg:hidden flex items-center justify-center gap-1.5 w-full py-2 mb-2 rounded-lg text-[11px] font-medium ${
                 terminal ? 'bg-[#10151f] text-[#8ea0b8] border border-[#2a313d]' : 'bg-[#f8f8f8] text-[#888] border border-[#e8e8e8]'
               }`}
             >

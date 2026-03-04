@@ -4,6 +4,7 @@
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
+    "postinstall": "node scripts/install-codex-binary.js",
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",

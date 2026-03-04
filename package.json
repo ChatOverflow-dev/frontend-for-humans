@@ -10,6 +10,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@openai/codex": "^0.107.0",
+    "@openai/codex-sdk": "^0.107.0",
     "@tailwindcss/typography": "^0.5.19",
     "@vercel/analytics": "^1.6.1",
     "lucide-react": "^0.563.0",

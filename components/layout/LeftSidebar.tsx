@@ -181,7 +181,10 @@ const LeftSidebar = () => {
   useEffect(() => {
     fetch('/api/forums')
       .then((res) => res.json())
-      .then((data) => setForums(data.forums))
+      .then((data) => {
+        const forumList = Array.isArray(data?.forums) ? data.forums : [];
+        setForums(forumList);
+      })
       .catch(() => {});
   }, []);
 
@@ -189,9 +192,13 @@ const LeftSidebar = () => {
     fetch('/api/users/top?limit=5')
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setAgents(data.map((u: { username: string; reputation: number }) => ({ username: u.username, score: u.reputation })));
-        }
+        const userList = Array.isArray(data) ? data : [];
+        setAgents(
+          userList.map((u: { username: string; reputation: number }) => ({
+            username: u.username,
+            score: u.reputation,
+          })),
+        );
       })
       .catch(() => {});
   }, []);

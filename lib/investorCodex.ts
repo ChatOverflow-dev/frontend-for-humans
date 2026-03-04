@@ -147,34 +147,87 @@ function buildInvestorCodexEnv(): Record<string, string> {
 /** Resolve the Codex CLI binary path, handling Vercel's bundled layout. */
 function findCodexBinaryPath(): string | undefined {
   const { platform, arch } = process;
+  const key = `${platform}-${arch}`;
   const targets: Record<string, { pkg: string; triple: string }> = {
     'linux-x64': { pkg: '@openai/codex-linux-x64', triple: 'x86_64-unknown-linux-musl' },
     'linux-arm64': { pkg: '@openai/codex-linux-arm64', triple: 'aarch64-unknown-linux-musl' },
     'darwin-x64': { pkg: '@openai/codex-darwin-x64', triple: 'x86_64-apple-darwin' },
     'darwin-arm64': { pkg: '@openai/codex-darwin-arm64', triple: 'aarch64-apple-darwin' },
   };
-  const target = targets[`${platform}-${arch}`];
-  if (!target) return undefined;
+  const target = targets[key];
+  if (!target) {
+    console.error(`[codex-binary] No target for platform ${key}`);
+    return undefined;
+  }
 
-  // Try resolving the platform package directly
+  console.log(`[codex-binary] Resolving for ${key} → ${target.pkg}`);
+
+  // Strategy 1: resolve platform package directly
   try {
     const pkgPath = require.resolve(`${target.pkg}/package.json`);
+    console.log(`[codex-binary] Strategy 1: package.json at ${pkgPath}`);
     const vendorDir = path.join(path.dirname(pkgPath), 'vendor', target.triple, 'codex');
     const bin = path.join(vendorDir, 'codex');
-    if (fs.existsSync(bin)) return bin;
-  } catch {}
+    const exists = fs.existsSync(bin);
+    console.log(`[codex-binary] Strategy 1: binary at ${bin} exists=${exists}`);
+    if (exists) {
+      try { fs.chmodSync(bin, 0o755); } catch {}
+      return bin;
+    }
+    // List what's actually in the package directory
+    try {
+      const pkgDir = path.dirname(pkgPath);
+      console.log(`[codex-binary] Strategy 1: contents of ${pkgDir}:`, fs.readdirSync(pkgDir));
+      const vendorExists = fs.existsSync(path.join(pkgDir, 'vendor'));
+      console.log(`[codex-binary] Strategy 1: vendor dir exists=${vendorExists}`);
+      if (vendorExists) {
+        console.log(`[codex-binary] Strategy 1: vendor contents:`, fs.readdirSync(path.join(pkgDir, 'vendor')));
+      }
+    } catch (e) {
+      console.log(`[codex-binary] Strategy 1: listing failed:`, e);
+    }
+  } catch (e) {
+    console.log(`[codex-binary] Strategy 1 failed:`, e instanceof Error ? e.message : e);
+  }
 
-  // Fallback: resolve through @openai/codex (how the SDK does it)
+  // Strategy 2: resolve through @openai/codex (how the SDK does it)
   try {
     const { createRequire } = require('module');
     const codexPkg = require.resolve('@openai/codex/package.json');
+    console.log(`[codex-binary] Strategy 2: @openai/codex at ${codexPkg}`);
     const codexRequire = createRequire(codexPkg);
     const platformPkg = codexRequire.resolve(`${target.pkg}/package.json`);
+    console.log(`[codex-binary] Strategy 2: platform pkg at ${platformPkg}`);
     const vendorDir = path.join(path.dirname(platformPkg), 'vendor', target.triple, 'codex');
     const bin = path.join(vendorDir, 'codex');
-    if (fs.existsSync(bin)) return bin;
-  } catch {}
+    const exists = fs.existsSync(bin);
+    console.log(`[codex-binary] Strategy 2: binary at ${bin} exists=${exists}`);
+    if (exists) {
+      try { fs.chmodSync(bin, 0o755); } catch {}
+      return bin;
+    }
+  } catch (e) {
+    console.log(`[codex-binary] Strategy 2 failed:`, e instanceof Error ? e.message : e);
+  }
 
+  // Strategy 3: scan node_modules for the binary
+  try {
+    const nmDir = path.join(process.cwd(), 'node_modules', '@openai');
+    if (fs.existsSync(nmDir)) {
+      console.log(`[codex-binary] Strategy 3: @openai packages:`, fs.readdirSync(nmDir));
+    } else {
+      console.log(`[codex-binary] Strategy 3: ${nmDir} does not exist`);
+      // Try __dirname based path
+      const altNm = path.join(__dirname, '..', 'node_modules', '@openai');
+      if (fs.existsSync(altNm)) {
+        console.log(`[codex-binary] Strategy 3: __dirname @openai packages:`, fs.readdirSync(altNm));
+      }
+    }
+  } catch (e) {
+    console.log(`[codex-binary] Strategy 3 failed:`, e instanceof Error ? e.message : e);
+  }
+
+  console.error(`[codex-binary] All strategies failed for ${key}`);
   return undefined;
 }
 

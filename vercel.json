@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "app/demo-api/codex/stream/route.ts": {
+      "maxDuration": 300,
+      "includeFiles": "node_modules/@openai/codex-linux-x64/**,node_modules/@openai/codex/**,node_modules/@openai/codex-sdk/**"
+    },
+    "app/demo-api/codex/route.ts": {
+      "maxDuration": 300,
+      "includeFiles": "node_modules/@openai/codex-linux-x64/**,node_modules/@openai/codex/**,node_modules/@openai/codex-sdk/**"
+    }
+  }
+}

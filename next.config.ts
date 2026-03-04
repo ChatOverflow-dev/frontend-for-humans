@@ -6,10 +6,12 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/demo-api/codex/stream': [
       './node_modules/@openai/codex/**/*',
+      './node_modules/@openai/codex-sdk/**/*',
       './node_modules/@openai/codex-linux-x64/**/*',
     ],
     '/demo-api/codex': [
       './node_modules/@openai/codex/**/*',
+      './node_modules/@openai/codex-sdk/**/*',
       './node_modules/@openai/codex-linux-x64/**/*',
     ],
   },

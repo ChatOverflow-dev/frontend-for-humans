@@ -371,9 +371,57 @@ export default function InvestorStudio() {
   const [reportStatus, setReportStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [reportError, setReportError] = useState('');
 
+  const clickTrailRef = useRef<Array<{ t: string; x: number; y: number; tag: string; text: string }>>([]);
+  const consoleErrorsRef = useRef<Array<{ t: string; type: string; message: string }>>([]);
+
   const terminal = theme === 'terminal';
   const activeSession = sessions.find((session) => session.id === threadId);
   const activeSessionStarred = activeSession?.starred === true;
+
+  // Record click trail (last 50 clicks)
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const el = e.target as HTMLElement;
+      const entry = {
+        t: new Date().toISOString(),
+        x: e.clientX,
+        y: e.clientY,
+        tag: `${el.tagName.toLowerCase()}${el.className ? '.' + String(el.className).split(' ')[0] : ''}`,
+        text: (el.textContent || '').slice(0, 40).trim(),
+      };
+      const trail = clickTrailRef.current;
+      trail.push(entry);
+      if (trail.length > 50) trail.shift();
+    };
+    document.addEventListener('click', handler, true);
+    return () => document.removeEventListener('click', handler, true);
+  }, []);
+
+  // Capture console errors and unhandled rejections
+  useEffect(() => {
+    const onError = (e: ErrorEvent) => {
+      consoleErrorsRef.current.push({
+        t: new Date().toISOString(),
+        type: 'error',
+        message: `${e.message} at ${e.filename}:${e.lineno}`,
+      });
+      if (consoleErrorsRef.current.length > 30) consoleErrorsRef.current.shift();
+    };
+    const onRejection = (e: PromiseRejectionEvent) => {
+      consoleErrorsRef.current.push({
+        t: new Date().toISOString(),
+        type: 'unhandledrejection',
+        message: String(e.reason),
+      });
+      if (consoleErrorsRef.current.length > 30) consoleErrorsRef.current.shift();
+    };
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onRejection);
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onRejection);
+    };
+  }, []);
 
   useEffect(() => {
     setSessions(loadSessionsFromStorage());
@@ -728,6 +776,15 @@ export default function InvestorStudio() {
       sessionCount: sessions.length,
       messageCount: messages.length,
       errorCount: messages.filter((m) => m.role === 'assistant' && /error|failed|stopped/i.test(m.text)).length,
+
+      // Scroll position
+      scrollPosition: { x: window.scrollX, y: window.scrollY },
+
+      // Click trail (last 50 interactions)
+      clickTrail: [...clickTrailRef.current],
+
+      // Console errors captured during session
+      consoleErrors: [...consoleErrorsRef.current],
     };
   };
 
@@ -966,16 +1023,26 @@ export default function InvestorStudio() {
           </section>
 
           <section className="relative min-h-[100svh] xl:min-h-0">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className={`xl:hidden flex items-center justify-center gap-1.5 w-full py-2 mb-2 rounded-lg text-[11px] font-medium ${
+                terminal ? 'bg-[#10151f] text-[#8ea0b8] border border-[#2a313d]' : 'bg-[#f8f8f8] text-[#888] border border-[#e8e8e8]'
+              }`}
+            >
+              <ChevronLeft className="w-3 h-3 rotate-90" />
+              Back to Codex Chat
+            </button>
             <a
               href={iframeSrc}
               target="_blank"
               rel="noreferrer"
-              className="absolute top-3 right-3 z-20 inline-flex items-center gap-1 rounded-full bg-[#f48024] text-white px-3 py-1.5 text-[11px] font-medium shadow-sm hover:bg-[#db6f1d]"
+              className="absolute top-3 right-3 xl:top-3 z-20 inline-flex items-center gap-1 rounded-full bg-[#f48024] text-white px-3 py-1.5 text-[11px] font-medium shadow-sm hover:bg-[#db6f1d]"
             >
               Open Full View
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
-            <div className={`h-full rounded-lg border overflow-hidden min-h-0 ${terminal ? 'border-[#2a313d] bg-[#0c1119]' : 'border-[#ececec] bg-white'}`}>
+            <div className={`h-[calc(100%-40px)] xl:h-full rounded-lg border overflow-hidden min-h-0 ${terminal ? 'border-[#2a313d] bg-[#0c1119]' : 'border-[#ececec] bg-white'}`}>
               <iframe
                 title="ChatOverflow"
                 src={iframeSrc}

@@ -46,6 +46,9 @@ type Diagnostics = {
   sessionCount?: number;
   messageCount?: number;
   errorCount?: number;
+  scrollPosition?: { x: number; y: number };
+  clickTrail?: Array<{ t: string; x: number; y: number; tag: string; text: string }>;
+  consoleErrors?: Array<{ t: string; type: string; message: string }>;
 };
 
 type FeedbackRequestBody = {
@@ -108,8 +111,30 @@ function formatDiagnosticsHtml(d: Diagnostics): string {
         ${row('Messages', d.messageCount)}
         ${row('Errors', d.errorCount)}
         ${row('Cookies', d.cookiesEnabled)}
+        ${row('Scroll', d.scrollPosition ? `${d.scrollPosition.x}, ${d.scrollPosition.y}` : null)}
       </table>
-    </div>`;
+    </div>
+    ${d.consoleErrors?.length ? `
+      <div style="margin:12px 0;padding:12px;background:#fff5f5;border:1px solid #e8c8c8;border-radius:6px">
+        <div style="font-size:12px;font-weight:600;color:#933;margin-bottom:8px">Console Errors (${d.consoleErrors.length})</div>
+        ${d.consoleErrors.map((e) => `
+          <div style="margin-bottom:4px;font-size:11px;font-family:monospace">
+            <span style="color:#999">${escapeHtml(e.t.slice(11, 19))}</span>
+            <span style="color:#c33;font-weight:600"> ${escapeHtml(e.type)}</span>
+            ${escapeHtml(e.message)}
+          </div>
+        `).join('')}
+      </div>` : ''}
+    ${d.clickTrail?.length ? `
+      <div style="margin:12px 0;padding:12px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px">
+        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px">Click Trail (last ${d.clickTrail.length})</div>
+        <table style="font-size:10px;color:#666;border-collapse:collapse;width:100%;font-family:monospace">
+          <tr style="font-weight:600;border-bottom:1px solid #ddd"><td style="padding:2px 6px">Time</td><td>Position</td><td>Element</td><td>Text</td></tr>
+          ${d.clickTrail.map((c) => `
+            <tr><td style="padding:2px 6px;color:#999">${escapeHtml(c.t.slice(11, 19))}</td><td>${c.x},${c.y}</td><td>${escapeHtml(c.tag)}</td><td>${escapeHtml(c.text.slice(0, 30))}</td></tr>
+          `).join('')}
+        </table>
+      </div>` : ''}`;
 }
 
 function formatEmailHtml(body: FeedbackRequestBody): string {

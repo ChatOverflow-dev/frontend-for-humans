@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Bug, ChevronDown, ChevronLeft, Download, ExternalLink, History, RefreshCw, Send, Wrench } from 'lucide-react';
-import { DEMO_SESSIONS } from './demoSessions';
+import { DEFAULT_SESSION_ID, DEMO_SESSIONS } from './demoSessions';
 
 type ToolTrace = {
   kind: 'mcp_tool_call' | 'command_execution' | 'web_search';
@@ -143,8 +145,15 @@ function extractNavigableUrl(traces: ToolTrace[]): string | null {
       continue;
     }
 
-    // 3. Regex fallback for truncated JSON (e.g. command_execution output cut at 1500 chars)
-    //    Match "id":"<uuid>" immediately followed by "title" to confirm it's a question
+    // 3. Regex fallback for truncated JSON: question_id (answer responses)
+    const qidRe = new RegExp(`"question_id"\\s*:\\s*"(${UUID_RE})"`, 'i');
+    const qidMatch = text.match(qidRe);
+    if (qidMatch) {
+      lastUrl = `/humans/question/${qidMatch[1]}`;
+      continue;
+    }
+
+    // 4. Regex fallback for truncated JSON: "id" + "title" (question responses)
     const truncatedRe = new RegExp(`"id"\\s*:\\s*"(${UUID_RE})"[^}]*"title"\\s*:`, 'i');
     const truncMatch = text.match(truncatedRe);
     if (truncMatch) {
@@ -152,7 +161,7 @@ function extractNavigableUrl(traces: ToolTrace[]): string | null {
       continue;
     }
 
-    // 4. Escaped JSON fallback (double-encoded MCP content wrappers where quotes are \")
+    // 5. Escaped JSON fallback (double-encoded MCP content wrappers where quotes are \")
     const escapedRe = new RegExp(`\\\\"id\\\\"\\s*:\\s*\\\\"(${UUID_RE})\\\\"[\\s\\S]*?\\\\"title\\\\"\\s*:`, 'i');
     const escapedMatch = text.match(escapedRe);
     if (escapedMatch) {
@@ -187,46 +196,6 @@ const MODELS = [
 ] as const;
 
 /** Render text with inline URLs as clickable links. */
-function LinkifiedText({ text, terminal, onNavigate }: { text: string; terminal: boolean; onNavigate: (url: string) => void }) {
-  const urlRegex = /(https?:\/\/[^\s"',)]+)/g;
-  const parts: { type: 'text' | 'link'; value: string }[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-  while ((match = urlRegex.exec(text)) !== null) {
-    if (match.index > lastIndex) parts.push({ type: 'text', value: text.slice(lastIndex, match.index) });
-    parts.push({ type: 'link', value: match[0] });
-    lastIndex = match.index + match[0].length;
-  }
-  if (lastIndex < text.length) parts.push({ type: 'text', value: text.slice(lastIndex) });
-  if (parts.every((p) => p.type === 'text')) return <>{text}</>;
-  return (
-    <>
-      {parts.map((p, i) =>
-        p.type === 'link' ? (
-          <a
-            key={i}
-            href={p.value}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => {
-              const uuidMatch = p.value.match(new RegExp(`/humans/question/(${UUID_RE})`, 'i'));
-              if (uuidMatch) {
-                e.preventDefault();
-                onNavigate(uuidMatch[0]);
-              }
-            }}
-            className={`underline ${terminal ? 'text-[#8de3bd] hover:text-[#b5f5d5]' : 'text-[#f48024] hover:text-[#db6f1d]'}`}
-          >
-            {p.value}
-          </a>
-        ) : (
-          <span key={i}>{p.value}</span>
-        ),
-      )}
-    </>
-  );
-}
-
 function toMessageId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
@@ -374,6 +343,8 @@ export default function InvestorStudio() {
   const [splitPercent, setSplitPercent] = useState(38);
   const isDraggingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const serverThreadIdRef = useRef<string | null>(null);
   const clickTrailRef = useRef<Array<{ t: string; x: number; y: number; tag: string; text: string }>>([]);
   const consoleErrorsRef = useRef<Array<{ t: string; type: string; message: string }>>([]);
 
@@ -432,7 +403,7 @@ export default function InvestorStudio() {
       if (!isDraggingRef.current || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const pct = ((clientX - rect.left) / rect.width) * 100;
-      setSplitPercent(Math.min(70, Math.max(20, pct)));
+      setSplitPercent(Math.min(80, Math.max(15, pct)));
     };
     const onMouseMove = (e: MouseEvent) => { onMove(e.clientX); };
     const onTouchMove = (e: TouchEvent) => { onMove(e.touches[0].clientX); };
@@ -450,7 +421,17 @@ export default function InvestorStudio() {
   }, []);
 
   useEffect(() => {
-    setSessions(loadSessionsFromStorage());
+    const loaded = loadSessionsFromStorage();
+    setSessions(loaded);
+
+    // Auto-load the onboarding session on first visit (no active session yet)
+    if (!threadId) {
+      const onboarding = loaded.find((s) => s.id === DEFAULT_SESSION_ID);
+      if (onboarding) {
+        setThreadId(onboarding.id);
+        setMessages(onboarding.messages);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -520,6 +501,22 @@ export default function InvestorStudio() {
           prompt: trimmed,
           enableMcpServers: mcpEnabled,
           model,
+          // Only send history when no real server thread exists (pinned demos, server reboots).
+          // After the first real response, serverThreadIdRef is set and resumeThread handles history natively.
+          history: !serverThreadIdRef.current
+            ? messages
+                .filter((m) => m.role !== 'system' && m.text !== 'Thinking...')
+                .map((m) => ({
+                  role: m.role,
+                  text: m.text,
+                  toolTraces: m.toolTraces?.map((t) => ({
+                    kind: t.kind,
+                    name: t.name,
+                    status: t.status,
+                    details: t.details.slice(0, 500),
+                  })),
+                }))
+            : undefined,
         }),
       });
 
@@ -559,6 +556,7 @@ export default function InvestorStudio() {
       }) => {
         if (payload.threadId) {
           setThreadId(payload.threadId);
+          serverThreadIdRef.current = payload.threadId;
         }
         // Priority 1: Check assistant text for explicit question links
         if (payload.assistantText) {
@@ -572,6 +570,20 @@ export default function InvestorStudio() {
           const traceUrl = extractNavigableUrl(payload.toolTraces);
           if (traceUrl) {
             tryNavigate(traceUrl);
+          }
+          // Reload iframe if any trace references the question currently displayed
+          for (const trace of payload.toolTraces) {
+            if (trace.status !== 'completed') continue;
+            let qid = extractQuestionIdFromJson(trace.details);
+            // Regex fallback for truncated JSON
+            if (!qid) {
+              const qidMatch = trace.details.match(new RegExp(`"question_id"\\s*:\\s*"(${UUID_RE})"`, 'i'));
+              if (qidMatch) qid = qidMatch[1];
+            }
+            if (qid && iframeSrc.includes(qid)) {
+              iframeRef.current?.contentWindow?.location.reload();
+              break;
+            }
           }
         }
         setMessages((prev) =>
@@ -689,6 +701,7 @@ export default function InvestorStudio() {
 
   const resetSession = () => {
     setThreadId('');
+    serverThreadIdRef.current = null;
     setMessages([
       {
         id: toMessageId(),
@@ -701,6 +714,7 @@ export default function InvestorStudio() {
 
   const loadSession = (session: StoredSession) => {
     setThreadId(session.id);
+    serverThreadIdRef.current = null;
     setMessages(session.messages);
     setSessionsOpen(false);
 
@@ -850,7 +864,7 @@ export default function InvestorStudio() {
     <div className={`lg:h-screen lg:overflow-hidden overflow-y-auto ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
       <div className="lg:h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
         <div ref={containerRef} className="flex flex-col lg:flex-row gap-3 md:gap-0 lg:h-full">
-          <section style={{ flexBasis: `${splitPercent}%` }} className={`rounded-xl border p-3 md:p-4 flex flex-col h-[60svh] lg:h-auto lg:min-h-0 shrink-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
+          <section style={{ flexBasis: `${splitPercent}%` }} className={`rounded-xl border p-3 md:p-4 flex flex-col h-[60svh] lg:h-auto lg:min-h-0 min-w-0 lg:shrink-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
             <div className={`mb-1.5 text-sm font-bold flex items-center gap-2 ${terminal ? 'text-[#8de3bd]' : 'text-[#1a1a1a]'}`}>
               Codex
               <span className={`${terminal ? 'text-[#2a313d]' : 'text-[#ddd]'}`}>|</span>
@@ -890,7 +904,7 @@ export default function InvestorStudio() {
               </div>
             </div>
 
-            <div className={`mt-0.5 flex-1 overflow-y-auto rounded-lg border p-2.5 space-y-2.5 min-h-0 ${terminal ? 'border-[#2a313d] bg-[#090d14]' : 'border-[#ececec] bg-[#fcfcfc]'}`}>
+            <div className={`mt-0.5 flex-1 overflow-y-auto overflow-x-hidden rounded-lg border p-2.5 space-y-2.5 min-h-0 min-w-0 ${terminal ? 'border-[#2a313d] bg-[#090d14]' : 'border-[#ececec] bg-[#fcfcfc]'}`}>
               {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
@@ -914,32 +928,85 @@ export default function InvestorStudio() {
                         Generating...
                       </div>
                     )}
-                    <pre
-                      className={`whitespace-pre-wrap text-[13px] leading-relaxed ${
-                        terminal ? 'font-mono' : 'font-sans'
-                      } ${
-                        isRunning && message.id === pendingMessageIdRef.current
-                          ? 'thinking-shimmer'
-                          : ''
-                      }`}
-                    >
-                      {message.role === 'assistant'
-                        ? <LinkifiedText text={message.text} terminal={terminal} onNavigate={setIframeSrc} />
-                        : message.text}
-                    </pre>
+                    {message.role === 'assistant' ? (
+                      <div
+                        className={`text-[13px] leading-relaxed prose prose-sm max-w-none ${
+                          terminal
+                            ? 'font-mono prose-invert prose-a:text-[#8de3bd] prose-a:hover:text-[#b5f5d5] prose-code:text-[#d8e0d8] prose-pre:bg-[#0a0f17] prose-pre:border prose-pre:border-[#2a313d]'
+                            : 'font-sans prose-a:text-[#f48024] prose-a:hover:text-[#db6f1d] prose-code:text-[#333] prose-pre:bg-[#f5f5f5] prose-pre:border prose-pre:border-[#e5e5e5]'
+                        } ${
+                          isRunning && message.id === pendingMessageIdRef.current
+                            ? (terminal ? 'thinking-shimmer-dark' : 'thinking-shimmer')
+                            : ''
+                        }`}
+                      >
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            a: ({ href, children }) => {
+                              const sessionMatch = href?.match(/^#load-session:(.+)$/);
+                              if (sessionMatch) {
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const s = sessions.find((sess) => sess.id === sessionMatch[1]);
+                                      if (s) loadSession(s);
+                                    }}
+                                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[12px] font-medium no-underline transition-colors ${
+                                      terminal
+                                        ? 'bg-[#1f3a2f] text-[#8de3bd] hover:bg-[#2a4f3f]'
+                                        : 'bg-[#fff3e8] text-[#f48024] hover:bg-[#ffe8d0]'
+                                    }`}
+                                  >
+                                    {children}
+                                  </button>
+                                );
+                              }
+                              const uuidMatch = href?.match(new RegExp(`/humans/question/(${UUID_RE})`, 'i'));
+                              return (
+                                <a
+                                  href={href}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  onClick={(e) => {
+                                    if (uuidMatch) {
+                                      e.preventDefault();
+                                      setIframeSrc(uuidMatch[0]);
+                                    }
+                                  }}
+                                >
+                                  {children}
+                                </a>
+                              );
+                            },
+                          }}
+                        >
+                          {message.text}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <pre
+                        className={`whitespace-pre-wrap text-[13px] leading-relaxed ${
+                          terminal ? 'font-mono' : 'font-sans'
+                        }`}
+                      >
+                        {message.text}
+                      </pre>
+                    )}
                     {message.usageLine && <p className={`text-[11px] mt-1.5 ${terminal ? 'text-[#8ea0b8]' : 'text-[#888]'}`}>{message.usageLine}</p>}
 
                     {(message.toolTraces || []).length > 0 && (
-                      <details className={`mt-2.5 rounded-md border px-2.5 py-2 ${terminal ? 'border-[#2a313d] bg-[#0d121b]' : 'border-[#ececec] bg-[#f8f8f8]'}`}>
+                      <details className={`mt-2.5 rounded-md border px-2.5 py-2 overflow-hidden min-w-0 ${terminal ? 'border-[#2a313d] bg-[#0d121b]' : 'border-[#ececec] bg-[#f8f8f8]'}`}>
                         <summary className={`text-[11px] cursor-pointer inline-flex items-center gap-1.5 select-none ${terminal ? 'text-[#93cdb0]' : 'text-[#555]'}`}>
                           <Wrench className="w-3.5 h-3.5" />
                           Tool / MCP trace ({message.toolTraces?.length})
                           <ChevronDown className="w-3 h-3 transition-transform duration-200 [details[open]_&]:rotate-180" />
                         </summary>
-                        <div className="mt-2 space-y-2">
+                        <div className="mt-2 space-y-2 max-h-[200px] overflow-y-auto thin-scrollbar">
                           {message.toolTraces?.map((trace, index) => (
-                            <div key={`${trace.name}-${index}`} className={`rounded-md border p-2 ${terminal ? 'border-[#2a313d] bg-[#0a0f17]' : 'border-[#e9e9e9] bg-white'}`}>
-                              <p className={`text-[11px] ${terminal ? 'text-[#9aa8ba]' : 'text-[#666]'}`}>
+                            <div key={`${trace.name}-${index}`} className={`rounded-md border p-2 overflow-hidden min-w-0 ${terminal ? 'border-[#2a313d] bg-[#0a0f17]' : 'border-[#e9e9e9] bg-white'}`}>
+                              <p className={`text-[11px] break-all [overflow-wrap:anywhere] ${terminal ? 'text-[#9aa8ba]' : 'text-[#666]'}`}>
                                 <span className="uppercase tracking-wide">{trace.kind}</span>
                                 {' · '}
                                 <span className="font-mono">{trace.name}</span>
@@ -1087,6 +1154,7 @@ export default function InvestorStudio() {
             </div>
             <div className={`flex-1 rounded-lg border overflow-hidden min-h-0 ${terminal ? 'border-[#2a313d] bg-[#0c1119]' : 'border-[#ececec] bg-white'}`}>
               <iframe
+                ref={iframeRef}
                 title="ChatOverflow"
                 src={iframeSrc}
                 className="w-full h-full"

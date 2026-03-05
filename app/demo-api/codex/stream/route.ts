@@ -20,6 +20,19 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+type HistoryTrace = {
+  kind: string;
+  name: string;
+  status: string;
+  details: string;
+};
+
+type HistoryMessage = {
+  role: 'user' | 'assistant' | 'system';
+  text: string;
+  toolTraces?: HistoryTrace[];
+};
+
 type StreamRequestBody = {
   threadId?: string;
   prompt?: string;
@@ -28,6 +41,7 @@ type StreamRequestBody = {
   sandboxMode?: SandboxMode;
   approvalPolicy?: ApprovalMode;
   webSearchMode?: WebSearchMode;
+  history?: HistoryMessage[];
 };
 
 type StreamStatePayload = {
@@ -62,6 +76,9 @@ function parseBody(body: unknown): StreamRequestBody {
     sandboxMode: b.sandboxMode as SandboxMode | undefined,
     approvalPolicy: b.approvalPolicy as ApprovalMode | undefined,
     webSearchMode: b.webSearchMode as WebSearchMode | undefined,
+    history: Array.isArray(b.history) ? (b.history as HistoryMessage[]).filter(
+      (m) => typeof m.role === 'string' && typeof m.text === 'string'
+    ) : undefined,
   };
 }
 
@@ -77,7 +94,7 @@ function usageToClient(usage: Usage | null): StreamStatePayload['usage'] {
 }
 
 export async function POST(request: NextRequest) {
-  let input: InvestorRunInput;
+  let input: StreamRequestBody;
 
   try {
     input = parseBody(await request.json());
@@ -95,6 +112,43 @@ export async function POST(request: NextRequest) {
     });
   }
   const prompt = input.prompt;
+
+  /** Build a prompt that includes conversation history as context. */
+  const buildPromptWithHistory = (): string => {
+    if (!input.history?.length) return prompt;
+
+    // Separate the last user message (the actual request) from prior context
+    const lastUserIdx = input.history.findLastIndex((m) => m.role === 'user');
+    const priorMessages = lastUserIdx > 0 ? input.history.slice(0, lastUserIdx) : [];
+    const currentMessage = lastUserIdx >= 0 ? input.history[lastUserIdx].text : prompt;
+
+    if (priorMessages.length === 0) return prompt;
+
+    const transcript = priorMessages
+      .filter((m) => m.role !== 'system')
+      .map((m) => {
+        const label = m.role === 'user' ? 'USER' : 'ASSISTANT';
+        let entry = `${label}: ${m.text}`;
+        if (m.role === 'assistant' && m.toolTraces?.length) {
+          const traces = m.toolTraces.map((t) =>
+            `  [${t.kind}] ${t.name} → ${t.status}${t.details ? ': ' + t.details : ''}`
+          ).join('\n');
+          entry += `\n(Tools the assistant used in that turn:\n${traces}\n)`;
+        }
+        return entry;
+      })
+      .join('\n\n');
+
+    return [
+      '<PRIOR_CONVERSATION>',
+      'Below is what has already happened in this conversation.',
+      '',
+      transcript,
+      '</PRIOR_CONVERSATION>',
+      '',
+      `User's new message: ${currentMessage}`,
+    ].join('\n');
+  };
 
   if (input.enableMcpServers && !hasMcpConfig()) {
     return new Response(
@@ -165,7 +219,10 @@ export async function POST(request: NextRequest) {
           ? codex.resumeThread(resumeThreadId, threadOptions)
           : codex.startThread(threadOptions);
 
-        const { events } = await thread.runStreamed(prompt, { signal: request.signal });
+        // Always include client-side history in the prompt so context is preserved
+        // even when the server thread is stale/missing (pinned demos, server reboots)
+        const runPrompt = buildPromptWithHistory();
+        const { events } = await thread.runStreamed(runPrompt, { signal: request.signal });
 
         for await (const event of events as AsyncGenerator<ThreadEvent>) {
           if (event.type === 'thread.started') {

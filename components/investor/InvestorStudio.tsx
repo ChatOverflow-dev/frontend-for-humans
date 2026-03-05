@@ -345,6 +345,7 @@ export default function InvestorStudio() {
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const serverThreadIdRef = useRef<string | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const clickTrailRef = useRef<Array<{ t: string; x: number; y: number; tag: string; text: string }>>([]);
   const consoleErrorsRef = useRef<Array<{ t: string; type: string; message: string }>>([]);
 
@@ -453,6 +454,14 @@ export default function InvestorStudio() {
       return next;
     });
   }, [threadId, messages]);
+
+  // Auto-scroll chat to bottom when messages change
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (el) {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const sortedSessions = useMemo(
     () =>
@@ -904,7 +913,7 @@ export default function InvestorStudio() {
               </div>
             </div>
 
-            <div className={`mt-0.5 flex-1 overflow-y-auto overflow-x-hidden rounded-lg border p-2.5 space-y-2.5 min-h-0 min-w-0 ${terminal ? 'border-[#2a313d] bg-[#090d14]' : 'border-[#ececec] bg-[#fcfcfc]'}`}>
+            <div ref={messagesContainerRef} className={`mt-0.5 flex-1 overflow-y-auto overflow-x-hidden rounded-lg border p-2.5 space-y-2.5 min-h-0 min-w-0 ${terminal ? 'border-[#2a313d] bg-[#090d14]' : 'border-[#ececec] bg-[#fcfcfc]'}`}>
               {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div

@@ -864,7 +864,7 @@ export default function InvestorStudio() {
     <div className={`lg:h-screen lg:overflow-hidden overflow-y-auto ${terminal ? 'bg-[#0f1117] text-[#d8e0d8]' : 'bg-[linear-gradient(122deg,#fff9f0_0%,#ffffff_45%,#f8f8f8_100%)] text-[#1a1a1a]'}`}>
       <div className="lg:h-full max-w-[1700px] mx-auto px-3 md:px-4 py-3 md:py-4">
         <div ref={containerRef} className="flex flex-col lg:flex-row gap-3 md:gap-0 lg:h-full">
-          <section style={{ flexBasis: `${splitPercent}%` }} className={`rounded-xl border p-3 md:p-4 flex flex-col h-[60svh] lg:h-auto lg:min-h-0 min-w-0 lg:shrink-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`}>
+          <section className={`chat-panel rounded-xl border p-3 md:p-4 flex flex-col h-[70dvh] lg:h-auto lg:min-h-0 min-w-0 lg:shrink-0 ${terminal ? 'border-[#2a313d] bg-[#10151f]' : 'border-[#ead9c8] bg-white/95'}`} style={{ ['--split-pct' as string]: `${splitPercent}%` }}>
             <div className={`mb-1.5 text-sm font-bold flex items-center gap-2 ${terminal ? 'text-[#8de3bd]' : 'text-[#1a1a1a]'}`}>
               Codex
               <span className={`${terminal ? 'text-[#2a313d]' : 'text-[#ddd]'}`}>|</span>
@@ -1129,7 +1129,7 @@ export default function InvestorStudio() {
             <div className={`w-1 h-12 rounded-full transition-colors ${terminal ? 'bg-[#2a313d] group-hover:bg-[#3f4f5f]' : 'bg-[#ddd] group-hover:bg-[#bbb]'}`} />
           </div>
 
-          <section className="relative min-h-[100svh] lg:min-h-0 flex flex-col flex-1 min-w-0">
+          <section className="relative h-[100dvh] lg:h-auto lg:min-h-0 flex flex-col flex-1 min-w-0">
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -1152,7 +1152,7 @@ export default function InvestorStudio() {
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
-            <div className={`flex-1 rounded-lg border overflow-hidden min-h-0 ${terminal ? 'border-[#2a313d] bg-[#0c1119]' : 'border-[#ececec] bg-white'}`}>
+            <div className={`rounded-lg border overflow-hidden h-[70dvh] lg:flex-1 lg:h-auto lg:min-h-0 ${terminal ? 'border-[#2a313d] bg-[#0c1119]' : 'border-[#ececec] bg-white'}`}>
               <iframe
                 ref={iframeRef}
                 title="ChatOverflow"

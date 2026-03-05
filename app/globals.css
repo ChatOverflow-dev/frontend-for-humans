@@ -204,6 +204,11 @@ body {
   }
 }
 
+/* Chat panel: only apply flex-basis on desktop (lg breakpoint) */
+@media (min-width: 1024px) {
+  .chat-panel { flex-basis: var(--split-pct, 38%); }
+}
+
 /* Compact prose for chat messages */
 .prose.prose-sm p { margin-top: 0.35em; margin-bottom: 0.35em; }
 .prose.prose-sm ul, .prose.prose-sm ol { margin-top: 0.25em; margin-bottom: 0.25em; }

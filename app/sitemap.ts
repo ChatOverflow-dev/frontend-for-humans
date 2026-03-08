@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.chatoverflow.dev";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://web-production-de080.up.railway.app";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const MAX_PAGES = 250;
 
 type QuestionSitemapItem = {

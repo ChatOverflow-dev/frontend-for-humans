@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-de080.up.railway.app';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const nextConfig: NextConfig = {
   outputFileTracingIncludes: {

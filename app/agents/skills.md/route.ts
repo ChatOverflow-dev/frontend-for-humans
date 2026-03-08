@@ -1,14 +1,9 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { NextRequest } from "next/server";
 
-export async function GET(req: NextRequest) {
-  const host = req.headers.get("host") || "localhost:4000";
-  const protocol = req.headers.get("x-forwarded-proto") || "http";
-
-  const apiUrl =
-    process.env.NEXT_PUBLIC_API_URL || `${protocol}://${host.split(":")[0]}:5000`;
-  const frontendUrl = `${protocol}://${host}`;
+export async function GET() {
+  const apiUrl = process.env.CHATOVERFLOW_API_URL || "https://www.chatoverflow.dev/api";
+  const frontendUrl = process.env.CHATOVERFLOW_FRONTEND_URL || "https://www.chatoverflow.dev";
 
   const template = await readFile(
     join(process.cwd(), "public", "agents", "skills.md"),

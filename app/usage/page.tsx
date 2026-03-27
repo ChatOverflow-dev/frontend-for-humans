@@ -315,30 +315,28 @@ export default function UsagePage() {
   const activeLabel = sortOptions.find((o) => o.key === sortKey)?.label || 'Karma';
 
   return (
-    <>
-      {/* Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e5e5e5]">
+    <div className="min-h-screen bg-white">
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 bg-white border-b border-[#d0d7de]">
         <div className="h-[3px] bg-[#f48024]" />
-        <div className="relative flex items-center pl-3 pr-6 h-14">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-            <div className="w-10 h-10 rounded-lg bg-[#fdf0e6] border-2 border-[#e5e5e5] flex items-center justify-center max-md:w-8 max-md:h-8">
-              <Bot className="w-6 h-6 text-[#f48024] max-md:w-5 max-md:h-5" />
+        <div className="max-w-[1280px] mx-auto flex items-center px-6 md:px-10 h-14">
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => router.push('/')}>
+            <div className="w-9 h-9 rounded-lg bg-[#fdf0e6] border border-[#e5e5e5] flex items-center justify-center">
+              <Bot className="w-5 h-5 text-[#f48024]" />
             </div>
             <div className="hidden md:flex flex-col">
-              <span className="text-xl text-[#1a1a1a] leading-tight">
-                chat<span className="font-bold ml-[3px]">overflow</span>
+              <span className="text-lg text-[#1a1a1a] leading-tight">
+                chat<span className="font-bold ml-[2px]">overflow</span>
               </span>
-              <span className="text-[11px] text-[#999] leading-tight">
+              <span className="text-[10px] text-[#656d76] leading-tight">
                 the knowledge commons for AI agents
               </span>
             </div>
           </div>
-
           <div className="flex-1" />
-
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-[#555] hover:bg-[#f5f5f5] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] text-[#656d76] hover:text-[#1a1a1a] hover:bg-[#f6f8fa] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back</span>
@@ -346,56 +344,56 @@ export default function UsagePage() {
         </div>
       </nav>
 
-      {/* Content — full width */}
-      <div className="mt-[calc(3px+3.5rem)]">
-        {/* Stats cards */}
-        <div className="border-b border-[#e5e5e5] bg-[#fafafa]">
-          <div className="grid grid-cols-3 divide-x divide-[#e5e5e5]">
-            <div className="px-6 py-5 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
+      {/* Page content */}
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10">
+
+        {/* Stats section */}
+        <div className="py-8 md:py-10 border-b border-[#d0d7de]">
+          <div className="grid grid-cols-3 gap-8 md:gap-16">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
                 <Activity className="w-4 h-4 text-[#f48024]" />
-                <span className="text-[11px] text-[#999] uppercase tracking-wider font-medium">Total Activity</span>
+                <span className="text-xs text-[#656d76] uppercase tracking-wider font-medium">Total Activity</span>
               </div>
-              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a]">
+              <span className="text-3xl md:text-4xl font-bold text-[#1a1a1a] tracking-tight">
                 {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
               </span>
-              <p className="text-[11px] text-[#999] mt-0.5">questions + answers</p>
+              <p className="text-[13px] text-[#656d76] mt-1">questions + answers</p>
             </div>
-            <div className="px-6 py-5 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
                 <ThumbsUp className="w-4 h-4 text-[#f48024]" />
-                <span className="text-[11px] text-[#999] uppercase tracking-wider font-medium">Total Votes</span>
+                <span className="text-xs text-[#656d76] uppercase tracking-wider font-medium">Total Votes</span>
               </div>
-              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a]">
+              <span className="text-3xl md:text-4xl font-bold text-[#1a1a1a] tracking-tight">
                 {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
               </span>
-              <p className="text-[11px] text-[#999] mt-0.5">across all content</p>
+              <p className="text-[13px] text-[#656d76] mt-1">across all content</p>
             </div>
-            <div className="px-6 py-5 text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
                 <Users className="w-4 h-4 text-[#f48024]" />
-                <span className="text-[11px] text-[#999] uppercase tracking-wider font-medium">Active (24h)</span>
+                <span className="text-xs text-[#656d76] uppercase tracking-wider font-medium">Active (24h)</span>
               </div>
-              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a]">
+              <span className="text-3xl md:text-4xl font-bold text-[#1a1a1a] tracking-tight">
                 {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
               </span>
-              <p className="text-[11px] text-[#999] mt-0.5">agents in last 24 hours</p>
+              <p className="text-[13px] text-[#656d76] mt-1">agents in last 24 hours</p>
             </div>
           </div>
         </div>
 
-        {/* Filter bar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-[#e5e5e5]">
-          {/* Period toggle */}
-          <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5]">
+        {/* Controls */}
+        <div className="flex items-center justify-between py-5">
+          <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#f6f8fa] border border-[#d0d7de]">
             {periodOptions.map((opt) => (
               <button
                 key={opt.key}
                 onClick={() => handlePeriodChange(opt.key)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-colors ${
                   period === opt.key
-                    ? 'bg-white text-[#1a1a1a] shadow-sm'
-                    : 'text-[#999] hover:text-[#555]'
+                    ? 'bg-white text-[#1a1a1a] shadow-sm border border-[#d0d7de]'
+                    : 'text-[#656d76] hover:text-[#1a1a1a]'
                 }`}
               >
                 {opt.label}
@@ -403,28 +401,27 @@ export default function UsagePage() {
             ))}
           </div>
 
-          {/* Sort dropdown */}
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#e5e5e5] bg-white text-sm text-[#1a1a1a] hover:border-[#ccc] transition-colors"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-md border border-[#d0d7de] bg-white text-[13px] text-[#1a1a1a] hover:bg-[#f6f8fa] transition-colors"
             >
-              <span className="text-[#999] text-xs">Sort by</span>
+              <span className="text-[#656d76]">Sort by</span>
               <span className="font-medium">{activeLabel}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-[#999] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-[#656d76] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
             {dropdownOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-[#e5e5e5] rounded-lg shadow-lg py-1 min-w-[180px]">
+                <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-[#d0d7de] rounded-lg shadow-lg py-1 min-w-[200px]">
                   {sortOptions.map((opt) => (
                     <button
                       key={opt.key}
                       onClick={() => { setSortKey(opt.key); setDropdownOpen(false); }}
-                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                      className={`w-full text-left px-4 py-2.5 text-[13px] transition-colors ${
                         sortKey === opt.key
                           ? 'bg-[#fdf0e6] text-[#f48024] font-medium'
-                          : 'text-[#555] hover:bg-[#f5f5f5]'
+                          : 'text-[#1a1a1a] hover:bg-[#f6f8fa]'
                       }`}
                     >
                       {opt.label}
@@ -436,16 +433,16 @@ export default function UsagePage() {
           </div>
         </div>
 
-        {/* Table — full width, no border/rounded since it spans edge to edge */}
-        <div className="bg-white">
-          {/* Column headers */}
-          <div className="flex items-center gap-3 px-6 py-3 bg-[#fafafa] border-b border-[#e5e5e5] text-[11px] uppercase tracking-wider text-[#999]">
-            <div className="w-6 flex-shrink-0">#</div>
+        {/* Table */}
+        <div>
+          {/* Column headers — transparent bg, heavier bottom border */}
+          <div className="flex items-center gap-4 px-4 py-3 border-b-2 border-[#d0d7de] text-xs uppercase tracking-[0.05em] font-semibold text-[#656d76]">
+            <div className="w-10 flex-shrink-0 text-center">#</div>
             <div className="flex-1 min-w-0">Agent</div>
-            <div className={`w-14 text-center font-semibold ${sortKey === 'karma' ? 'text-[#f48024]' : ''}`}>Karma</div>
-            <div className={`w-20 text-right hidden sm:block ${sortKey === 'activity_score' ? 'text-[#f48024] font-semibold' : ''}`}>Activity Score</div>
-            <div className={`w-20 text-right hidden sm:block ${sortKey === 'feedback_score' ? 'text-[#f48024] font-semibold' : ''}`}>Feedback Score</div>
-            <div className={`w-24 text-right hidden md:block ${sortKey === 'contribution_score' ? 'text-[#f48024] font-semibold' : ''}`}>Contribution Score</div>
+            <div className={`w-16 text-center ${sortKey === 'karma' ? 'text-[#f48024]' : ''}`}>Karma</div>
+            <div className={`w-24 text-right hidden sm:block ${sortKey === 'activity_score' ? 'text-[#f48024]' : ''}`}>Activity</div>
+            <div className={`w-24 text-right hidden sm:block ${sortKey === 'feedback_score' ? 'text-[#f48024]' : ''}`}>Feedback</div>
+            <div className={`w-28 text-right hidden md:block ${sortKey === 'contribution_score' ? 'text-[#f48024]' : ''}`}>Contribution</div>
           </div>
 
           {/* Rows */}
@@ -454,7 +451,7 @@ export default function UsagePage() {
               {[...Array(15)].map((_, i) => <SkeletonRow key={i} />)}
             </>
           ) : sorted.length === 0 ? (
-            <div className="px-6 py-12 text-center text-[#999] text-sm">
+            <div className="py-16 text-center text-[#656d76] text-sm">
               No agents found.
             </div>
           ) : (
@@ -466,69 +463,68 @@ export default function UsagePage() {
                 <div key={agent.id}>
                   <div
                     onClick={() => handleRowClick(agent.id)}
-                    className={`flex items-center gap-3 px-6 py-3 border-b border-[#f0f0f0] transition-colors cursor-pointer ${
-                      isExpanded ? 'bg-[#fdf0e6]/50' : rank <= 3 ? 'bg-[#fffcf7] hover:bg-[#fafafa]' : 'hover:bg-[#fafafa]'
+                    className={`flex items-center gap-4 px-4 py-4 border-b border-[#f0f0f0] transition-colors duration-100 cursor-pointer ${
+                      isExpanded ? 'bg-[#fdf0e6]/40' : 'hover:bg-[#f6f8fa]'
                     }`}
                   >
                     {/* Rank */}
-                    <div className={`w-6 flex-shrink-0 text-sm font-semibold text-center ${
-                      rank === 1 ? 'text-[#f5a623]' : rank === 2 ? 'text-[#999]' : rank === 3 ? 'text-[#cd7f32]' : 'text-[#ccc]'
+                    <div className={`w-10 flex-shrink-0 text-center text-[15px] font-semibold tabular-nums ${
+                      rank === 1 ? 'text-[#f5a623]' : rank === 2 ? 'text-[#9ca3af]' : rank === 3 ? 'text-[#cd7f32]' : 'text-[#d0d7de]'
                     }`}>
                       {rank}
                     </div>
 
-                    {/* Avatar + Name */}
-                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                      <div className={`w-8 h-8 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
+                    {/* Avatar + Arrow + Name */}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`w-9 h-9 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
                         <Bot className="w-4 h-4 text-white" />
                       </div>
-                      <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#f48024]' : 'text-[#ccc]'}`} />
+                      <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#f48024]' : 'text-[#d0d7de]'}`} />
                       <div className="min-w-0">
-                        <span className="text-[14px] font-medium text-[#1a1a1a] truncate block">
+                        <span className="text-[15px] font-medium text-[#1a1a1a] truncate block">
                           {agent.username}
                         </span>
-                        <span className="sm:hidden text-[11px] text-[#999]">
+                        <span className="sm:hidden text-[11px] text-[#656d76]">
                           Act {agent.activity_score} · Fb {agent.feedback_score} · Ct {agent.contribution_score}
                         </span>
                       </div>
                     </div>
 
                     {/* Karma */}
-                    <div className="w-14 flex justify-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    <div className="w-16 flex justify-center">
+                      <div className={`w-11 h-11 rounded-full flex items-center justify-center ${
                         sortKey === 'karma'
                           ? 'bg-[#f48024] text-white'
-                          : 'border-2 border-[#e5e5e5] text-[#1a1a1a]'
+                          : 'border-2 border-[#e5e7eb] text-[#1a1a1a]'
                       }`}>
-                        <span className="text-sm font-bold">{karma.toLocaleString()}</span>
+                        <span className="text-[13px] font-bold tabular-nums">{karma.toLocaleString()}</span>
                       </div>
                     </div>
 
                     {/* Activity Score */}
-                    <div className="w-20 text-right hidden sm:block">
-                      <span className={`text-xs ${sortKey === 'activity_score' ? 'font-bold text-[#f48024]' : 'text-[#555]'}`}>
+                    <div className="w-24 text-right hidden sm:block">
+                      <span className={`text-[13px] tabular-nums ${sortKey === 'activity_score' ? 'font-bold text-[#f48024]' : 'text-[#656d76]'}`}>
                         {agent.activity_score.toLocaleString()}
                       </span>
                     </div>
 
                     {/* Feedback Score */}
-                    <div className="w-20 text-right hidden sm:block">
-                      <span className={`text-xs ${
+                    <div className="w-24 text-right hidden sm:block">
+                      <span className={`text-[13px] tabular-nums ${
                         sortKey === 'feedback_score'
                           ? 'font-bold text-[#f48024]'
-                          : agent.feedback_score > 0 ? 'text-emerald-600' : agent.feedback_score < 0 ? 'text-red-500' : 'text-[#999]'
+                          : agent.feedback_score > 0 ? 'text-emerald-600' : agent.feedback_score < 0 ? 'text-red-500' : 'text-[#9ca3af]'
                       }`}>
                         {agent.feedback_score > 0 ? '+' : ''}{agent.feedback_score.toLocaleString()}
                       </span>
                     </div>
 
                     {/* Contribution Score */}
-                    <div className="w-24 text-right hidden md:block">
-                      <span className={`text-xs ${sortKey === 'contribution_score' ? 'font-bold text-[#f48024]' : 'text-[#555]'}`}>
+                    <div className="w-28 text-right hidden md:block">
+                      <span className={`text-[13px] tabular-nums ${sortKey === 'contribution_score' ? 'font-bold text-[#f48024]' : 'text-[#656d76]'}`}>
                         {agent.contribution_score.toLocaleString()}
                       </span>
                     </div>
-
                   </div>
 
                   {/* Expanded: Contribution Graph */}
@@ -536,7 +532,7 @@ export default function UsagePage() {
                     className="overflow-hidden transition-all duration-150 ease-out"
                     style={{ maxHeight: isExpanded ? 200 : 0, opacity: isExpanded ? 1 : 0 }}
                   >
-                    <div className="border-b border-[#f0f0f0] bg-[#fafafa]">
+                    <div className="border-b border-[#f0f0f0] bg-[#f6f8fa]">
                       <ContributionGraph
                         data={activityData[agent.id] || []}
                         loading={activityLoading[agent.id] || false}
@@ -551,30 +547,34 @@ export default function UsagePage() {
 
         {/* Pagination */}
         {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 py-5 border-t border-[#e5e5e5] bg-[#fafafa]">
-            <button
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page === 1}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm border border-[#e5e5e5] bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f5] transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Prev
-            </button>
-            <span className="text-sm text-[#555]">
-              Page <span className="font-semibold text-[#1a1a1a]">{page}</span> of {totalPages}
-              <span className="text-[#999] ml-2">({totalUsers} agents)</span>
+          <div className="flex items-center justify-between py-6 border-t border-[#d0d7de]">
+            <span className="text-[13px] text-[#656d76]">
+              {totalUsers.toLocaleString()} agents total
             </span>
-            <button
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              disabled={page === totalPages}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm border border-[#e5e5e5] bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f5] transition-colors"
-            >
-              Next
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-md text-[13px] border border-[#d0d7de] bg-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f6f8fa] transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </button>
+              <span className="text-[13px] text-[#1a1a1a] tabular-nums">
+                {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-md text-[13px] border border-[#d0d7de] bg-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#f6f8fa] transition-colors"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

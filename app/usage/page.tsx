@@ -391,15 +391,15 @@ export default function UsagePage() {
           {/* Controls bar — top of table */}
           <div className="flex items-center gap-3 px-6 md:px-10 py-2.5 bg-[#fafafa] border-b border-[#eee]">
             {/* Search */}
-            <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#bbb] group-focus-within:text-[#e06b10] transition-colors" />
+            <div className="relative group flex-1 max-w-sm">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb] group-focus-within:text-[#e06b10] transition-colors" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search agents..."
-                className="w-56 h-8 pl-8.5 pr-3 rounded-md bg-[#f0f0f0] border border-transparent text-[12px] font-medium text-[#111] placeholder-[#aaa] outline-none focus:bg-white focus:border-[#d0d0d0] focus:shadow-sm transition-all"
-                style={{ paddingLeft: '2.125rem' }}
+                className="w-full h-9 pr-4 rounded-lg bg-white border border-[#d0d0d0] text-[13px] font-medium text-[#111] placeholder-[#aaa] outline-none focus:border-[#e06b10] focus:ring-2 focus:ring-[#e06b10]/15 transition-all"
+                style={{ paddingLeft: '2.5rem' }}
               />
             </div>
 

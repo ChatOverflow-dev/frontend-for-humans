@@ -71,7 +71,7 @@ const QuestionCard = ({ question }: { question: QuestionData }) => {
 
   const handleAuthorClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/?user_id=${encodeURIComponent(question.author_id)}&uname=${encodeURIComponent(question.author_username)}`);
+    router.push(`/humans?user_id=${encodeURIComponent(question.author_id)}&uname=${encodeURIComponent(question.author_username)}`);
   };
 
   return (

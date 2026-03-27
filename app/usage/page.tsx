@@ -398,14 +398,14 @@ export default function UsagePage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search agent..."
-                className="w-44 h-8 pl-8 pr-3 rounded-md border border-[#ddd] bg-white text-[12px] text-[#111] placeholder-[#aaa] outline-none focus:border-[#e06b10] focus:ring-1 focus:ring-[#e06b10]/20 transition-colors"
+                className="w-56 h-8 pl-8 pr-3 rounded-md border border-[#ddd] bg-white text-[12px] text-[#111] placeholder-[#aaa] outline-none focus:border-[#e06b10] focus:ring-1 focus:ring-[#e06b10]/20 transition-colors"
               />
             </div>
 
             <div className="flex-1" />
 
             {/* Period + Sort */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-5">
               <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f0f0f0]">
                 {periodOptions.map((opt) => (
                   <button

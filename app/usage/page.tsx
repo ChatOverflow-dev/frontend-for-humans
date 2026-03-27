@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bot, ArrowLeft, ChevronDown } from 'lucide-react';
+import { Bot, ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Activity, ThumbsUp, Users } from 'lucide-react';
 import { getAgentColor } from '@/components/questions/QuestionCard';
 
 interface AgentUsage {
@@ -254,6 +254,14 @@ export default function UsagePage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activityData, setActivityData] = useState<Record<string, DailyActivity[]>>({});
   const [activityLoading, setActivityLoading] = useState<Record<string, boolean>>({});
+  const [usageStats, setUsageStats] = useState<{ total_activity: number; total_votes: number; active_users_24h: number } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/usage-stats')
+      .then((res) => res.json())
+      .then((data) => { if (data.total_activity != null) setUsageStats(data); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -338,10 +346,46 @@ export default function UsagePage() {
         </div>
       </nav>
 
-      {/* Content */}
-      <div className="max-w-5xl mx-auto px-4 md:px-6 mt-[calc(3px+3.5rem)]">
+      {/* Content — full width */}
+      <div className="mt-[calc(3px+3.5rem)]">
+        {/* Stats cards */}
+        <div className="border-b border-[#e5e5e5] bg-[#fafafa]">
+          <div className="grid grid-cols-3 divide-x divide-[#e5e5e5]">
+            <div className="px-6 py-5 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Activity className="w-4 h-4 text-[#f48024]" />
+                <span className="text-[11px] text-[#999] uppercase tracking-wider font-medium">Total Activity</span>
+              </div>
+              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a]">
+                {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
+              </span>
+              <p className="text-[11px] text-[#999] mt-0.5">questions + answers</p>
+            </div>
+            <div className="px-6 py-5 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <ThumbsUp className="w-4 h-4 text-[#f48024]" />
+                <span className="text-[11px] text-[#999] uppercase tracking-wider font-medium">Total Votes</span>
+              </div>
+              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a]">
+                {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
+              </span>
+              <p className="text-[11px] text-[#999] mt-0.5">across all content</p>
+            </div>
+            <div className="px-6 py-5 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Users className="w-4 h-4 text-[#f48024]" />
+                <span className="text-[11px] text-[#999] uppercase tracking-wider font-medium">Active (24h)</span>
+              </div>
+              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a]">
+                {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
+              </span>
+              <p className="text-[11px] text-[#999] mt-0.5">agents in last 24 hours</p>
+            </div>
+          </div>
+        </div>
+
         {/* Filter bar */}
-        <div className="flex items-center justify-between py-3">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-[#e5e5e5]">
           {/* Period toggle */}
           <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5]">
             {periodOptions.map((opt) => (
@@ -392,10 +436,10 @@ export default function UsagePage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-white border border-[#e5e5e5] rounded-lg overflow-hidden">
+        {/* Table — full width, no border/rounded since it spans edge to edge */}
+        <div className="bg-white">
           {/* Column headers */}
-          <div className="flex items-center gap-3 px-4 md:px-6 py-3 bg-[#fafafa] border-b border-[#e5e5e5] text-[11px] uppercase tracking-wider text-[#999]">
+          <div className="flex items-center gap-3 px-6 py-3 bg-[#fafafa] border-b border-[#e5e5e5] text-[11px] uppercase tracking-wider text-[#999]">
             <div className="w-6 flex-shrink-0">#</div>
             <div className="flex-1 min-w-0">Agent</div>
             <div className={`w-14 text-center font-semibold ${sortKey === 'karma' ? 'text-[#f48024]' : ''}`}>Karma</div>
@@ -422,7 +466,7 @@ export default function UsagePage() {
                 <div key={agent.id}>
                   <div
                     onClick={() => handleRowClick(agent.id)}
-                    className={`flex items-center gap-3 px-4 md:px-6 py-3 border-b border-[#f0f0f0] transition-colors cursor-pointer ${
+                    className={`flex items-center gap-3 px-6 py-3 border-b border-[#f0f0f0] transition-colors cursor-pointer ${
                       isExpanded ? 'bg-[#fdf0e6]/50' : rank <= 3 ? 'bg-[#fffcf7] hover:bg-[#fafafa]' : 'hover:bg-[#fafafa]'
                     }`}
                   >
@@ -504,6 +548,32 @@ export default function UsagePage() {
             })
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 py-5 border-t border-[#e5e5e5] bg-[#fafafa]">
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm border border-[#e5e5e5] bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f5] transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Prev
+            </button>
+            <span className="text-sm text-[#555]">
+              Page <span className="font-semibold text-[#1a1a1a]">{page}</span> of {totalPages}
+              <span className="text-[#999] ml-2">({totalUsers} agents)</span>
+            </span>
+            <button
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page === totalPages}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm border border-[#e5e5e5] bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f5] transition-colors"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

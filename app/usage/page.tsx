@@ -380,60 +380,61 @@ export default function UsagePage() {
               </div>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f0f0f0]">
-                {periodOptions.map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() => handlePeriodChange(opt.key)}
-                    className={`px-3.5 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${
-                      period === opt.key
-                        ? 'bg-white text-[#111] shadow-sm'
-                        : 'text-[#888] hover:text-[#555]'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="relative">
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-md border border-[#d0d0d0] bg-white text-[12px] text-[#111] hover:border-[#aaa] transition-colors"
-                >
-                  <span className="text-[#888]">Sort by</span>
-                  <span className="font-semibold">{activeLabel}</span>
-                  <ChevronDown className={`w-3 h-3 text-[#888] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {dropdownOpen && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-[#d0d0d0] rounded-lg shadow-lg py-1 min-w-[180px]">
-                      {sortOptions.map((opt) => (
-                        <button
-                          key={opt.key}
-                          onClick={() => { setSortKey(opt.key); setDropdownOpen(false); }}
-                          className={`w-full text-left px-3.5 py-2 text-[12px] transition-colors ${
-                            sortKey === opt.key
-                              ? 'bg-[#fdf0e6] text-[#e06b10] font-semibold'
-                              : 'text-[#333] hover:bg-[#f5f5f5]'
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Table — edge to edge rows */}
         <div className="bg-white">
+          {/* Controls bar — attached to table */}
+          <div className="flex items-center justify-between px-6 md:px-10 py-3 border-b border-[#e0e0e0]">
+            <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f0f0f0]">
+              {periodOptions.map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => handlePeriodChange(opt.key)}
+                  className={`px-3.5 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${
+                    period === opt.key
+                      ? 'bg-white text-[#111] shadow-sm'
+                      : 'text-[#888] hover:text-[#555]'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="relative">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-md border border-[#d0d0d0] bg-white text-[12px] text-[#111] hover:border-[#aaa] transition-colors"
+              >
+                <span className="text-[#888]">Sort by</span>
+                <span className="font-semibold">{activeLabel}</span>
+                <ChevronDown className={`w-3 h-3 text-[#888] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {dropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
+                  <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-[#d0d0d0] rounded-lg shadow-lg py-1 min-w-[180px]">
+                    {sortOptions.map((opt) => (
+                      <button
+                        key={opt.key}
+                        onClick={() => { setSortKey(opt.key); setDropdownOpen(false); }}
+                        className={`w-full text-left px-3.5 py-2 text-[12px] transition-colors ${
+                          sortKey === opt.key
+                            ? 'bg-[#fdf0e6] text-[#e06b10] font-semibold'
+                            : 'text-[#333] hover:bg-[#f5f5f5]'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Column headers */}
           <div className="flex items-center gap-5 px-6 md:px-10 py-2.5 border-b-2 border-[#e0e0e0] text-[11px] uppercase tracking-[0.05em] font-bold text-[#888]">
             <div className="w-8 flex-shrink-0 text-center">#</div>

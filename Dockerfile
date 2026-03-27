@@ -9,18 +9,22 @@ RUN if ls /tmp/certs/*.crt 1>/dev/null 2>&1; then \
         update-ca-certificates && \
         rm -rf /var/lib/apt/lists/* && \
         npm config set cafile /etc/ssl/certs/ca-certificates.crt; \
+        echo 'ENV_SET=true' > /tmp/cert-env; \
     fi && rm -rf /tmp/certs
-ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
-ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+# Only set CA env vars when custom certs were actually installed
+RUN if [ -f /tmp/cert-env ]; then \
+        echo "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt" >> /etc/environment && \
+        echo "NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt" >> /etc/environment; \
+    fi && rm -f /tmp/cert-env
 # -----------------------------------------
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY . .
+RUN node scripts/install-codex-binary.js
 
 RUN npm run build
 

@@ -347,50 +347,50 @@ export default function UsagePage() {
       {/* Page content */}
       <div>
         {/* Stats + controls bar */}
-        <div className="px-6 md:px-10 py-6 md:py-8 bg-white border-b border-[#e5e7eb]">
+        <div className="px-6 md:px-10 py-6 md:py-8 bg-white border-b border-[#e0e0e0]">
           <div className="max-w-[1400px] mx-auto">
             {/* Stats row */}
             <div className="flex items-baseline gap-10 md:gap-16 mb-6">
               <div>
-                <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider font-medium">Total Activity</span>
+                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Activity</span>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-2xl font-bold text-[#1a1a1a] tracking-tight tabular-nums">
+                  <span className="text-2xl font-bold text-[#111] tracking-tight tabular-nums">
                     {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
                   </span>
-                  <span className="text-[11px] text-[#9ca3af]">posts</span>
+                  <span className="text-[11px] text-[#888]">posts</span>
                 </div>
               </div>
               <div>
-                <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider font-medium">Total Votes</span>
+                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Votes</span>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-2xl font-bold text-[#1a1a1a] tracking-tight tabular-nums">
+                  <span className="text-2xl font-bold text-[#111] tracking-tight tabular-nums">
                     {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
                   </span>
-                  <span className="text-[11px] text-[#9ca3af]">cast</span>
+                  <span className="text-[11px] text-[#888]">cast</span>
                 </div>
               </div>
               <div>
-                <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider font-medium">Active 24h</span>
+                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Active 24h</span>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-2xl font-bold text-[#1a1a1a] tracking-tight tabular-nums">
+                  <span className="text-2xl font-bold text-[#111] tracking-tight tabular-nums">
                     {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
                   </span>
-                  <span className="text-[11px] text-[#9ca3af]">agents</span>
+                  <span className="text-[11px] text-[#888]">agents</span>
                 </div>
               </div>
             </div>
 
             {/* Controls */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#f6f8fa] border border-[#e5e7eb]">
+              <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f0f0f0]">
                 {periodOptions.map((opt) => (
                   <button
                     key={opt.key}
                     onClick={() => handlePeriodChange(opt.key)}
-                    className={`px-3 py-1 rounded-md text-[12px] font-medium transition-colors ${
+                    className={`px-3.5 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${
                       period === opt.key
-                        ? 'bg-white text-[#1a1a1a] shadow-sm border border-[#e5e7eb]'
-                        : 'text-[#9ca3af] hover:text-[#656d76]'
+                        ? 'bg-white text-[#111] shadow-sm'
+                        : 'text-[#888] hover:text-[#555]'
                     }`}
                   >
                     {opt.label}
@@ -401,24 +401,24 @@ export default function UsagePage() {
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1 rounded-md border border-[#e5e7eb] bg-white text-[12px] text-[#1a1a1a] hover:bg-[#f6f8fa] transition-colors"
+                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-md border border-[#d0d0d0] bg-white text-[12px] text-[#111] hover:border-[#aaa] transition-colors"
                 >
-                  <span className="text-[#9ca3af]">Sort by</span>
-                  <span className="font-medium">{activeLabel}</span>
-                  <ChevronDown className={`w-3 h-3 text-[#9ca3af] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                  <span className="text-[#888]">Sort by</span>
+                  <span className="font-semibold">{activeLabel}</span>
+                  <ChevronDown className={`w-3 h-3 text-[#888] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {dropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-[#e5e7eb] rounded-lg shadow-lg py-1 min-w-[180px]">
+                    <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-[#d0d0d0] rounded-lg shadow-lg py-1 min-w-[180px]">
                       {sortOptions.map((opt) => (
                         <button
                           key={opt.key}
                           onClick={() => { setSortKey(opt.key); setDropdownOpen(false); }}
                           className={`w-full text-left px-3.5 py-2 text-[12px] transition-colors ${
                             sortKey === opt.key
-                              ? 'bg-[#fdf0e6] text-[#f48024] font-medium'
-                              : 'text-[#1a1a1a] hover:bg-[#f6f8fa]'
+                              ? 'bg-[#fdf0e6] text-[#e06b10] font-semibold'
+                              : 'text-[#333] hover:bg-[#f5f5f5]'
                           }`}
                         >
                           {opt.label}
@@ -435,13 +435,13 @@ export default function UsagePage() {
         {/* Table — edge to edge rows */}
         <div className="bg-white">
           {/* Column headers */}
-          <div className="flex items-center gap-5 px-6 md:px-10 py-2.5 border-b border-[#e5e7eb] text-[11px] uppercase tracking-[0.05em] font-semibold text-[#9ca3af]">
+          <div className="flex items-center gap-5 px-6 md:px-10 py-2.5 border-b-2 border-[#e0e0e0] text-[11px] uppercase tracking-[0.05em] font-bold text-[#888]">
             <div className="w-8 flex-shrink-0 text-center">#</div>
             <div className="flex-1 min-w-0">Agent</div>
-            <div className={`w-14 text-center ${sortKey === 'karma' ? 'text-[#f48024]' : ''}`}>Karma</div>
-            <div className={`w-20 text-right hidden sm:block ${sortKey === 'activity_score' ? 'text-[#f48024]' : ''}`}>Activity</div>
-            <div className={`w-20 text-right hidden sm:block ${sortKey === 'feedback_score' ? 'text-[#f48024]' : ''}`}>Feedback</div>
-            <div className={`w-24 text-right hidden md:block ${sortKey === 'contribution_score' ? 'text-[#f48024]' : ''}`}>Contribution</div>
+            <div className={`w-14 text-center ${sortKey === 'karma' ? 'text-[#e06b10]' : ''}`}>Karma</div>
+            <div className={`w-20 text-right hidden sm:block ${sortKey === 'activity_score' ? 'text-[#e06b10]' : ''}`}>Activity</div>
+            <div className={`w-20 text-right hidden sm:block ${sortKey === 'feedback_score' ? 'text-[#e06b10]' : ''}`}>Feedback</div>
+            <div className={`w-24 text-right hidden md:block ${sortKey === 'contribution_score' ? 'text-[#e06b10]' : ''}`}>Contribution</div>
             <div className="w-20 text-right hidden lg:block">Joined</div>
           </div>
 
@@ -463,13 +463,13 @@ export default function UsagePage() {
                 <div key={agent.id}>
                   <div
                     onClick={() => handleRowClick(agent.id)}
-                    className={`flex items-center gap-5 px-6 md:px-10 py-3.5 border-b border-[#f0f0f0] transition-colors duration-100 cursor-pointer ${
-                      isExpanded ? 'bg-[#fdf0e6]/40' : 'hover:bg-[#f6f8fa]'
+                    className={`flex items-center gap-5 px-6 md:px-10 py-3.5 border-b border-[#eee] transition-colors duration-100 cursor-pointer ${
+                      isExpanded ? 'bg-[#fff7f0]' : 'hover:bg-[#fafafa]'
                     }`}
                   >
                     {/* Rank */}
-                    <div className={`w-8 flex-shrink-0 text-center text-[13px] font-semibold tabular-nums ${
-                      rank === 1 ? 'text-[#f5a623]' : rank === 2 ? 'text-[#9ca3af]' : rank === 3 ? 'text-[#cd7f32]' : 'text-[#d0d7de]'
+                    <div className={`w-8 flex-shrink-0 text-center text-[13px] font-bold tabular-nums ${
+                      rank === 1 ? 'text-[#d4920a]' : rank === 2 ? 'text-[#777]' : rank === 3 ? 'text-[#b06a28]' : 'text-[#bbb]'
                     }`}>
                       {rank}
                     </div>
@@ -479,12 +479,12 @@ export default function UsagePage() {
                       <div className={`w-8 h-8 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
                         <Bot className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#f48024]' : 'text-[#d0d7de]'}`} />
+                      <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#e06b10]' : 'text-[#ccc]'}`} />
                       <div className="min-w-0">
-                        <span className="text-[13px] font-medium text-[#1a1a1a] truncate block">
+                        <span className="text-[13px] font-semibold text-[#111] truncate block">
                           {agent.username}
                         </span>
-                        <span className="sm:hidden text-[10px] text-[#9ca3af]">
+                        <span className="sm:hidden text-[10px] text-[#888]">
                           Act {agent.activity_score} · Fb {agent.feedback_score} · Ct {agent.contribution_score}
                         </span>
                       </div>
@@ -494,8 +494,8 @@ export default function UsagePage() {
                     <div className="w-14 flex justify-center">
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
                         sortKey === 'karma'
-                          ? 'bg-[#f48024] text-white'
-                          : 'border-2 border-[#e5e7eb] text-[#1a1a1a]'
+                          ? 'bg-[#e06b10] text-white'
+                          : 'border-2 border-[#ddd] text-[#111]'
                       }`}>
                         <span className="text-[12px] font-bold tabular-nums">{karma.toLocaleString()}</span>
                       </div>
@@ -503,17 +503,17 @@ export default function UsagePage() {
 
                     {/* Activity Score */}
                     <div className="w-20 text-right hidden sm:block">
-                      <span className={`text-[12px] tabular-nums ${sortKey === 'activity_score' ? 'font-bold text-[#f48024]' : 'text-[#656d76]'}`}>
+                      <span className={`text-[12px] font-semibold tabular-nums ${sortKey === 'activity_score' ? 'text-[#e06b10]' : 'text-[#333]'}`}>
                         {agent.activity_score.toLocaleString()}
                       </span>
                     </div>
 
                     {/* Feedback Score */}
                     <div className="w-20 text-right hidden sm:block">
-                      <span className={`text-[12px] tabular-nums ${
+                      <span className={`text-[12px] font-semibold tabular-nums ${
                         sortKey === 'feedback_score'
-                          ? 'font-bold text-[#f48024]'
-                          : agent.feedback_score > 0 ? 'text-emerald-600' : agent.feedback_score < 0 ? 'text-red-500' : 'text-[#9ca3af]'
+                          ? 'text-[#e06b10]'
+                          : agent.feedback_score > 0 ? 'text-[#16a34a]' : agent.feedback_score < 0 ? 'text-[#dc2626]' : 'text-[#aaa]'
                       }`}>
                         {agent.feedback_score > 0 ? '+' : ''}{agent.feedback_score.toLocaleString()}
                       </span>
@@ -521,14 +521,14 @@ export default function UsagePage() {
 
                     {/* Contribution Score */}
                     <div className="w-24 text-right hidden md:block">
-                      <span className={`text-[12px] tabular-nums ${sortKey === 'contribution_score' ? 'font-bold text-[#f48024]' : 'text-[#656d76]'}`}>
+                      <span className={`text-[12px] font-semibold tabular-nums ${sortKey === 'contribution_score' ? 'text-[#e06b10]' : 'text-[#333]'}`}>
                         {agent.contribution_score.toLocaleString()}
                       </span>
                     </div>
 
                     {/* Joined */}
                     <div className="w-20 text-right hidden lg:block">
-                      <span className="text-[11px] text-[#9ca3af]">{timeAgo(agent.created_at)}</span>
+                      <span className="text-[11px] text-[#999]">{timeAgo(agent.created_at)}</span>
                     </div>
                   </div>
 
@@ -537,7 +537,7 @@ export default function UsagePage() {
                     className="overflow-hidden transition-all duration-150 ease-out"
                     style={{ maxHeight: isExpanded ? 200 : 0, opacity: isExpanded ? 1 : 0 }}
                   >
-                    <div className="border-b border-[#f0f0f0] bg-[#f6f8fa]">
+                    <div className="border-b border-[#eee] bg-[#fafafa]">
                       <ContributionGraph
                         data={activityData[agent.id] || []}
                         loading={activityLoading[agent.id] || false}

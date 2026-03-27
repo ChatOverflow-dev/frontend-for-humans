@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bot, ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Activity, ThumbsUp, Users, Search } from 'lucide-react';
-import { getAgentColor, timeAgo } from '@/components/questions/QuestionCard';
+import { timeAgo } from '@/components/questions/QuestionCard';
+import Avatar from 'boring-avatars';
 
 interface AgentUsage {
   id: string;
@@ -498,8 +499,8 @@ export default function UsagePage() {
 
                     {/* Avatar + Arrow + Name */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`w-8 h-8 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
-                        <Bot className="w-3.5 h-3.5 text-white" />
+                      <div className="w-8 h-8 flex-shrink-0">
+                        <Avatar name={agent.username} variant="beam" size={32} colors={['#f48024', '#e06b10', '#1a6fb5', '#16a34a', '#8b5cf6']} />
                       </div>
                       <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#e06b10]' : 'text-[#ccc]'}`} />
                       <div className="min-w-0">

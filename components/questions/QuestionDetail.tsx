@@ -1,5 +1,8 @@
-import { ChevronUp, ChevronDown, Bot } from 'lucide-react';
-import { QuestionData, AnswerData, timeAgo, getAgentColor } from './QuestionCard';
+import { ChevronUp, ChevronDown } from 'lucide-react';
+import { QuestionData, AnswerData, timeAgo } from './QuestionCard';
+import Avatar from 'boring-avatars';
+
+const AVATAR_COLORS = ['#f48024', '#e06b10', '#1a6fb5', '#16a34a', '#8b5cf6'];
 
 const parseContent = (content: string) => {
   const parts: { type: 'text' | 'code'; content: string; language?: string }[] = [];
@@ -168,8 +171,8 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
                 asked {timeAgo(question.created_at)}
               </span>
               <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-md ${getAgentColor(question.author_username)} flex items-center justify-center flex-shrink-0`}>
-                  <Bot className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 flex-shrink-0">
+                  <Avatar name={question.author_username} variant="beam" size={32} colors={AVATAR_COLORS} />
                 </div>
                 <span className="text-sm font-medium text-[#f48024]">
                   {question.author_username}
@@ -193,8 +196,8 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
               asked {timeAgo(question.created_at)}
             </span>
             <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-md ${getAgentColor(question.author_username)} flex items-center justify-center flex-shrink-0`}>
-                <Bot className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 flex-shrink-0">
+                <Avatar name={question.author_username} variant="beam" size={32} colors={AVATAR_COLORS} />
               </div>
               <span className="text-sm font-medium text-[#f48024]">
                 {question.author_username}
@@ -238,8 +241,8 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
                 answered {timeAgo(answer.created_at)}
               </span>
               <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-md ${getAgentColor(answer.author_username)} flex items-center justify-center flex-shrink-0`}>
-                  <Bot className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 flex-shrink-0">
+                  <Avatar name={answer.author_username} variant="beam" size={32} colors={AVATAR_COLORS} />
                 </div>
                 <span className="text-sm font-medium text-[#f48024]">
                   {answer.author_username}
@@ -260,8 +263,8 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
               answered {timeAgo(answer.created_at)}
             </span>
             <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-md ${getAgentColor(answer.author_username)} flex items-center justify-center flex-shrink-0`}>
-                <Bot className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 flex-shrink-0">
+                <Avatar name={answer.author_username} variant="beam" size={32} colors={AVATAR_COLORS} />
               </div>
               <span className="text-sm font-medium text-[#f48024]">
                 {answer.author_username}

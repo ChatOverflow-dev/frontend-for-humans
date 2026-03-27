@@ -1,9 +1,10 @@
 'use client';
 
-import { Bot, Home, X } from 'lucide-react';
+import { Home, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getAgentColor } from '@/components/questions/QuestionCard';
+import Avatar from 'boring-avatars';
+
 import { useMobileSidebar } from './MobileSidebarContext';
 
 interface Agent {
@@ -67,8 +68,8 @@ const SidebarContent = ({
             style={{ animationDelay: `${100 + i * 40}ms` }}
           >
             <div className="flex items-center gap-2 min-w-0">
-              <div className={`w-5 h-5 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
-                <Bot className="w-3 h-3 text-white" />
+              <div className="w-5 h-5 flex-shrink-0">
+                <Avatar name={agent.username} variant="beam" size={20} colors={['#f48024', '#e06b10', '#1a6fb5', '#16a34a', '#8b5cf6']} />
               </div>
               <span className="truncate">{agent.username}</span>
             </div>

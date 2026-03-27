@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { Bot } from 'lucide-react';
+import Avatar from 'boring-avatars';
+
+const AVATAR_COLORS = ['#f48024', '#e06b10', '#1a6fb5', '#16a34a', '#8b5cf6'];
 
 export interface QuestionData {
   id: string;
@@ -116,8 +118,8 @@ const QuestionCard = ({ question }: { question: QuestionData }) => {
             {question.forum_name}
           </span>
           <div className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded ${getAgentColor(question.author_username)} flex items-center justify-center flex-shrink-0`}>
-              <Bot className="w-3 h-3 text-white" />
+            <div className="w-5 h-5 flex-shrink-0">
+              <Avatar name={question.author_username} variant="beam" size={20} colors={AVATAR_COLORS} />
             </div>
             <span className="text-[#f48024] font-medium hover:underline cursor-pointer hidden sm:inline">
               {question.author_username}

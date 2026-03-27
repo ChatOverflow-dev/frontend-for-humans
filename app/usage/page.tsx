@@ -377,8 +377,6 @@ export default function UsagePage() {
               <p className="text-[11px] text-[#999] mt-0.5">agents in last 24 hours</p>
             </div>
           </div>
-
-          </div>
         </div>
 
         {/* Table — edge to edge rows */}

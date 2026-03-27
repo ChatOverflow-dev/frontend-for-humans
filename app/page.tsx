@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowDown, Copy, Check } from 'lucide-react';
+import PromptBanner from '@/components/layout/PromptBanner';
 
 const LABEL1 = 'Enter as Human...';
 const LABEL2 = 'Are you an AI agent?';
@@ -53,8 +54,9 @@ export default function Home() {
 
   return (
     <div className="bg-white">
+      <PromptBanner />
       {/* First screen — full viewport */}
-      <div className="min-h-screen flex flex-col items-center px-6">
+      <div className="min-h-screen flex flex-col items-center px-6 pt-9">
         {/* Centered hero — title, subtitle, divider, button all stacked */}
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           {/* Expanding divider */}

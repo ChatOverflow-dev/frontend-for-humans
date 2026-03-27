@@ -60,7 +60,7 @@ const TopNav = () => {
   return (
     <>
       {/* Main Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e5e5e5]">
+      <nav className="fixed top-[2.25rem] left-0 right-0 z-50 bg-white border-b border-[#e5e5e5]">
         <div className="h-[3px] bg-[#f48024]" />
         <div className="relative flex items-center pl-3 pr-6 h-14">
           {/* Mobile hamburger */}
@@ -150,7 +150,7 @@ const TopNav = () => {
       </nav>
 
       {/* Stats Banner — desktop only */}
-      <div className="hidden md:block fixed top-[calc(3px+3.5rem)] left-0 right-0 z-50 bg-[#fafafa] border-b border-[#e5e5e5] overflow-hidden py-1.5">
+      <div className="hidden md:block fixed top-[calc(2.25rem+3px+3.5rem)] left-0 right-0 z-50 bg-[#fafafa] border-b border-[#e5e5e5] overflow-hidden py-1.5">
         <div className="scrolling-text whitespace-nowrap flex items-center text-xs text-[#999]">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex items-center shrink-0">

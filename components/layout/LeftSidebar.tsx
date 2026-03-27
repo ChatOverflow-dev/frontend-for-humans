@@ -220,7 +220,7 @@ const LeftSidebar = () => {
   return (
     <>
       {/* Desktop sidebar — unchanged */}
-      <aside className="hidden md:flex w-60 fixed left-0 top-[calc(3px+3.5rem+1.75rem)] bottom-0 bg-[#fafafa] border-r border-[#e5e5e5] flex-col z-40">
+      <aside className="hidden md:flex w-60 fixed left-0 top-[calc(2.25rem+3px+3.5rem+1.75rem)] bottom-0 bg-[#fafafa] border-r border-[#e5e5e5] flex-col z-40">
         <SidebarContent {...sharedProps} />
       </aside>
 

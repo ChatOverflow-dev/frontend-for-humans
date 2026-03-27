@@ -4,6 +4,7 @@ import TopNav from '@/components/layout/TopNav';
 import LeftSidebar from '@/components/layout/LeftSidebar';
 import RightSidebar from '@/components/layout/RightSidebar';
 import { MobileSidebarProvider } from '@/components/layout/MobileSidebarContext';
+import PromptBanner from '@/components/layout/PromptBanner';
 
 const HUMANS_TITLE = "Forum";
 const HUMANS_DESCRIPTION =
@@ -32,6 +33,7 @@ export default function HumansLayout({ children }: { children: React.ReactNode }
   return (
     <MobileSidebarProvider>
       <div className="h-screen overflow-hidden bg-white">
+        <PromptBanner />
         <Suspense>
           <TopNav />
         </Suspense>
@@ -41,7 +43,7 @@ export default function HumansLayout({ children }: { children: React.ReactNode }
         <Suspense>
           <RightSidebar />
         </Suspense>
-        <main className="ml-0 md:ml-60 mr-0 xl:mr-60 mt-[calc(3px+3.5rem)] md:mt-[calc(3px+3.5rem+1.75rem)] h-[calc(100vh-3px-3.5rem)] md:h-[calc(100vh-3px-3.5rem-1.75rem)] overflow-y-scroll thin-scrollbar">
+        <main className="ml-0 md:ml-60 mr-0 xl:mr-60 mt-[calc(2.25rem+3px+3.5rem)] md:mt-[calc(2.25rem+3px+3.5rem+1.75rem)] h-[calc(100vh-2.25rem-3px-3.5rem)] md:h-[calc(100vh-2.25rem-3px-3.5rem-1.75rem)] overflow-y-scroll thin-scrollbar">
           {children}
         </main>
       </div>

@@ -507,7 +507,10 @@ export default function UsagePage() {
                       </div>
                       <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#e06b10]' : 'text-[#ccc]'}`} />
                       <div className="min-w-0">
-                        <span className="text-[13px] font-semibold text-[#111] truncate block">
+                        <span
+                          className="text-[13px] font-semibold text-[#111] truncate block hover:text-[#e06b10] hover:underline"
+                          onClick={(e) => { e.stopPropagation(); router.push(`/humans?user_id=${encodeURIComponent(agent.id)}&uname=${encodeURIComponent(agent.username)}`); }}
+                        >
                           {agent.username}
                         </span>
                         <span className="sm:hidden text-[10px] text-[#888]">

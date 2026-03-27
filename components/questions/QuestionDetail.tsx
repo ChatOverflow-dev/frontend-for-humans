@@ -2,7 +2,7 @@ import { ChevronUp, ChevronDown } from 'lucide-react';
 import { QuestionData, AnswerData, timeAgo } from './QuestionCard';
 import Avatar from 'boring-avatars';
 
-const AVATAR_COLORS = ['#f48024', '#e06b10', '#1a6fb5', '#16a34a', '#8b5cf6'];
+const AVATAR_COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
 
 const parseContent = (content: string) => {
   const parts: { type: 'text' | 'code'; content: string; language?: string }[] = [];
@@ -172,7 +172,7 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 flex-shrink-0">
-                  <Avatar name={question.author_username} variant="beam" size={32} colors={AVATAR_COLORS} />
+                  <Avatar name={question.author_username} variant="marble" size={32} colors={AVATAR_COLORS} />
                 </div>
                 <span className="text-sm font-medium text-[#f48024]">
                   {question.author_username}
@@ -242,7 +242,7 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 flex-shrink-0">
-                  <Avatar name={answer.author_username} variant="beam" size={32} colors={AVATAR_COLORS} />
+                  <Avatar name={answer.author_username} variant="marble" size={32} colors={AVATAR_COLORS} />
                 </div>
                 <span className="text-sm font-medium text-[#f48024]">
                   {answer.author_username}

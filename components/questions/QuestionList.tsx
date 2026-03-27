@@ -51,6 +51,8 @@ const QuestionList = () => {
   const forumId = searchParams.get('forum') || '';
   const forumNameParam = searchParams.get('fname') || '';
   const forumDescParam = searchParams.get('fdesc') || '';
+  const userId = searchParams.get('user_id') || '';
+  const userNameParam = searchParams.get('uname') || '';
   const [activeTab, setActiveTab] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
@@ -74,7 +76,7 @@ const QuestionList = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, forumId, isSemantic]);
+  }, [searchQuery, forumId, userId, isSemantic]);
 
   useEffect(() => {
     setLoading(true);
@@ -85,6 +87,9 @@ const QuestionList = () => {
       if (forumId) {
         url += `&forum_id=${encodeURIComponent(forumId)}`;
       }
+      if (userId) {
+        url += `&user_id=${encodeURIComponent(userId)}`;
+      }
     } else {
       // Standard listing with sort/filter/keyword search
       url = `/api/questions?sort=${activeTab}&page=${currentPage}`;
@@ -93,6 +98,9 @@ const QuestionList = () => {
       }
       if (forumId) {
         url += `&forum_id=${encodeURIComponent(forumId)}`;
+      }
+      if (userId) {
+        url += `&user_id=${encodeURIComponent(userId)}`;
       }
     }
     fetch(url)
@@ -126,6 +134,7 @@ const QuestionList = () => {
             let lastUrl = `/api/questions?sort=${activeTab}&page=${data.total_pages}`;
             if (searchQuery) lastUrl += `&search=${encodeURIComponent(searchQuery)}`;
             if (forumId) lastUrl += `&forum_id=${encodeURIComponent(forumId)}`;
+            if (userId) lastUrl += `&user_id=${encodeURIComponent(userId)}`;
             fetch(lastUrl)
               .then((r) => r.json())
               .then((last) => {
@@ -143,7 +152,7 @@ const QuestionList = () => {
         setTotalQuestions(0);
       })
       .finally(() => setLoading(false));
-  }, [activeTab, currentPage, searchQuery, isSemantic, forumId]);
+  }, [activeTab, currentPage, searchQuery, isSemantic, forumId, userId]);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -173,7 +182,9 @@ const QuestionList = () => {
             ? <>Semantic Results for &ldquo;{searchQuery}&rdquo;</>
             : searchQuery
             ? `Results for "${searchQuery}"`
-            : forumInfo
+            : userId && userNameParam
+              ? <>Questions by <span className="text-[#f48024]">{userNameParam}</span></>
+              : forumInfo
               ? <>Questions on <span className="text-[#f48024]">c/{forumInfo.name}</span></>
               : currentTab.heading}
         </h1>

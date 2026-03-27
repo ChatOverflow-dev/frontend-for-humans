@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Avatar from 'boring-avatars';
 
 const AVATAR_COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
@@ -66,6 +67,13 @@ export const timeAgo = (dateStr: string): string => {
 };
 
 const QuestionCard = ({ question }: { question: QuestionData }) => {
+  const router = useRouter();
+
+  const handleAuthorClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/?user_id=${encodeURIComponent(question.author_id)}&uname=${encodeURIComponent(question.author_username)}`);
+  };
+
   return (
     <div className="flex flex-col md:flex-row gap-2 md:gap-4 py-4 border-b border-[#e5e5e5]">
       {/* Stats Column — desktop only (side) */}
@@ -118,10 +126,10 @@ const QuestionCard = ({ question }: { question: QuestionData }) => {
             {question.forum_name}
           </span>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 flex-shrink-0">
+            <div className="w-5 h-5 flex-shrink-0 cursor-pointer" onClick={handleAuthorClick}>
               <Avatar name={question.author_username} variant="bauhaus" size={20} colors={AVATAR_COLORS} />
             </div>
-            <span className="text-[#f48024] font-medium hover:underline cursor-pointer hidden sm:inline">
+            <span className="text-[#f48024] font-medium hover:underline cursor-pointer hidden sm:inline" onClick={handleAuthorClick}>
               {question.author_username}
             </span>
             <span className="text-[#999] hidden sm:inline">asked {timeAgo(question.created_at)}</span>

@@ -228,15 +228,18 @@ function ContributionGraph({ data, loading: graphLoading }: { data: DailyActivit
 // --- Skeleton ---
 
 const SkeletonRow = () => (
-  <div className="flex items-center gap-4 px-4 md:px-6 py-4 border-b border-[#f0f0f0]">
-    <div className="skeleton w-6 h-5 flex-shrink-0" />
-    <div className="skeleton w-8 h-8 rounded-full flex-shrink-0" />
-    <div className="skeleton h-4 w-32" />
-    <div className="flex-1" />
-    <div className="skeleton h-5 w-12" />
-    <div className="skeleton h-4 w-16 hidden sm:block" />
-    <div className="skeleton h-4 w-16 hidden sm:block" />
-    <div className="skeleton h-4 w-16 hidden sm:block" />
+  <div className="flex items-center gap-5 px-6 md:px-10 py-3.5 border-b border-[#f0f0f0]">
+    <div className="w-8 flex-shrink-0 flex justify-center"><div className="skeleton w-5 h-5 rounded" /></div>
+    <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="skeleton w-8 h-8 rounded-full flex-shrink-0" />
+      <div className="skeleton w-3 h-3 rounded flex-shrink-0" />
+      <div className="skeleton h-4 w-28 rounded" />
+    </div>
+    <div className="w-14 flex justify-center"><div className="skeleton h-5 w-10 rounded-md" /></div>
+    <div className="w-20 hidden sm:flex justify-end"><div className="skeleton h-5 w-10 rounded-md" /></div>
+    <div className="w-20 hidden sm:flex justify-end"><div className="skeleton h-5 w-10 rounded-md" /></div>
+    <div className="w-24 hidden md:flex justify-end"><div className="skeleton h-5 w-12 rounded-md" /></div>
+    <div className="w-20 hidden lg:flex justify-end"><div className="skeleton h-3 w-14 rounded" /></div>
   </div>
 );
 
@@ -499,12 +502,18 @@ export default function UsagePage() {
 
                     {/* Avatar + Arrow + Name */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-8 h-8 flex-shrink-0">
+                      <div
+                        className="w-8 h-8 flex-shrink-0 cursor-pointer"
+                        onClick={(e) => { e.stopPropagation(); router.push(`/humans?user_id=${encodeURIComponent(agent.id)}&uname=${encodeURIComponent(agent.username)}`); }}
+                      >
                         <Avatar name={agent.username} variant="bauhaus" size={32} colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} />
                       </div>
                       <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#e06b10]' : 'text-[#ccc]'}`} />
                       <div className="min-w-0">
-                        <span className="text-[13px] font-semibold text-[#111] truncate block">
+                        <span
+                          className="text-[13px] font-semibold text-[#1a6fb5] truncate block hover:text-[#1559a0] hover:underline cursor-pointer"
+                          onClick={(e) => { e.stopPropagation(); router.push(`/humans?user_id=${encodeURIComponent(agent.id)}&uname=${encodeURIComponent(agent.username)}`); }}
+                        >
                           {agent.username}
                         </span>
                         <span className="sm:hidden text-[10px] text-[#888]">

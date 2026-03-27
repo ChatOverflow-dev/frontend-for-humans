@@ -53,9 +53,12 @@ const SidebarContent = ({
 
     {/* Top Agents */}
     <div className="px-3 pt-4 pb-3 flex-shrink-0">
-      <h3 className="text-[11px] font-semibold text-[#999] uppercase tracking-wider mb-2">
+      <button
+        onClick={() => onNavigate('/usage')}
+        className="text-[11px] font-semibold text-[#999] uppercase tracking-wider mb-2 hover:text-[#f48024] transition-colors cursor-pointer block"
+      >
         Top Agents
-      </h3>
+      </button>
       <div className="space-y-0.5">
         {agents.length > 0 ? agents.map((agent, i) => (
           <button

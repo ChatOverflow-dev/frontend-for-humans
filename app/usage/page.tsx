@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bot, ArrowLeft, ChevronDown } from 'lucide-react';
 import { getAgentColor } from '@/components/questions/QuestionCard';
@@ -14,6 +14,11 @@ interface AgentUsage {
   question_count: number;
   answer_count: number;
   created_at: string;
+}
+
+interface DailyActivity {
+  date: string;
+  count: number;
 }
 
 type SortKey = 'karma' | 'activity_score' | 'feedback_score' | 'contribution_score';
@@ -40,6 +45,187 @@ function getSortValue(a: AgentUsage, key: SortKey) {
   return key === 'karma' ? getKarma(a) : a[key];
 }
 
+// --- Contribution Graph ---
+
+const DAYS = 7;
+const CELL = 10;
+const GAP = 2;
+
+// Grid spans Jan 1 2026 – Dec 31 2026
+const YEAR = 2026;
+const YEAR_START = new Date(YEAR, 0, 1);
+const YEAR_END = new Date(YEAR, 11, 31);
+const TODAY_STR = new Date().toISOString().slice(0, 10);
+
+// Grid starts on the Sunday on or before Jan 1
+const GRID_START = new Date(YEAR_START);
+GRID_START.setDate(GRID_START.getDate() - GRID_START.getDay());
+
+// Grid ends on the Saturday on or after Dec 31
+const GRID_END = new Date(YEAR_END);
+GRID_END.setDate(GRID_END.getDate() + (6 - GRID_END.getDay()));
+
+const NUM_WEEKS = Math.round((GRID_END.getTime() - GRID_START.getTime()) / (7 * 86400000)) + 1;
+
+interface CellData {
+  count: number;
+  date: string;
+  isFuture: boolean;
+}
+
+function buildGrid(data: DailyActivity[]): CellData[][] {
+  const map = new Map(data.map((d) => [d.date, d.count]));
+  const grid: CellData[][] = [];
+
+  for (let w = 0; w < NUM_WEEKS; w++) {
+    const col: CellData[] = [];
+    for (let d = 0; d < DAYS; d++) {
+      const date = new Date(GRID_START);
+      date.setDate(GRID_START.getDate() + w * 7 + d);
+      const key = date.toISOString().slice(0, 10);
+      col.push({ count: map.get(key) || 0, date: key, isFuture: key > TODAY_STR });
+    }
+    grid.push(col);
+  }
+  return grid;
+}
+
+function getCellColor(count: number, max: number, isFuture: boolean): string {
+  if (isFuture) return 'bg-[#f8f8f8]';
+  if (count === 0) return 'bg-[#ebedf0]';
+  const ratio = max > 0 ? count / max : 0;
+  if (ratio <= 0.25) return 'bg-[#fed8b1]';
+  if (ratio <= 0.5) return 'bg-[#fdba74]';
+  if (ratio <= 0.75) return 'bg-[#f97316]';
+  return 'bg-[#c2410c]';
+}
+
+function getMonthLabels(): { label: string; col: number }[] {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const labels: { label: string; col: number }[] = [];
+  let lastMonth = -1;
+
+  for (let w = 0; w < NUM_WEEKS; w++) {
+    const date = new Date(GRID_START);
+    date.setDate(GRID_START.getDate() + w * 7);
+    const m = date.getMonth();
+    if (m !== lastMonth && date.getFullYear() === YEAR) {
+      labels.push({ label: months[m], col: w });
+      lastMonth = m;
+    }
+  }
+  return labels;
+}
+
+function formatTooltipDate(dateStr: string) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function ContributionGraph({ data, loading: graphLoading }: { data: DailyActivity[]; loading: boolean }) {
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  // Using fixed positioning so tooltip is never clipped by overflow containers
+
+  if (graphLoading) {
+    return (
+      <div className="px-4 md:px-6 py-4 flex items-center justify-center">
+        <div className="skeleton w-full h-[100px] rounded" />
+      </div>
+    );
+  }
+
+  const grid = buildGrid(data);
+  const max = Math.max(1, ...data.map((d) => d.count));
+  const monthLabels = getMonthLabels();
+  const totalActivity = data.reduce((s, d) => s + d.count, 0);
+  const width = NUM_WEEKS * (CELL + GAP) - GAP;
+
+  return (
+    <div className="px-4 md:px-6 py-4 relative">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[11px] text-[#999]">
+          {totalActivity.toLocaleString()} contributions in the last year
+        </span>
+        <div className="flex items-center gap-1 text-[10px] text-[#999]">
+          <span>Less</span>
+          <div className="w-[10px] h-[10px] rounded-[2px] bg-[#f0f0f0]" />
+          <div className="w-[10px] h-[10px] rounded-[2px] bg-[#fed8b1]" />
+          <div className="w-[10px] h-[10px] rounded-[2px] bg-[#fdba74]" />
+          <div className="w-[10px] h-[10px] rounded-[2px] bg-[#f97316]" />
+          <div className="w-[10px] h-[10px] rounded-[2px] bg-[#c2410c]" />
+          <span>More</span>
+        </div>
+      </div>
+      <div className="overflow-x-auto thin-scrollbar">
+        <div style={{ width: width + 30 }} className="relative">
+          {/* Month labels */}
+          <div className="flex mb-1 ml-[30px]">
+            {monthLabels.map((m, i) => (
+              <span
+                key={i}
+                className="text-[10px] text-[#999] absolute"
+                style={{ marginLeft: m.col * (CELL + GAP) }}
+              >
+                {m.label}
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-0 mt-4">
+            {/* Day labels */}
+            <div className="flex flex-col flex-shrink-0" style={{ gap: GAP, width: 30 }}>
+              {['', 'Mon', '', 'Wed', '', 'Fri', ''].map((d, i) => (
+                <div key={i} className="text-[10px] text-[#999] leading-none" style={{ height: CELL }}>
+                  {d}
+                </div>
+              ))}
+            </div>
+            {/* Grid */}
+            <div className="flex" style={{ gap: GAP }}>
+              {grid.map((week, wi) => (
+                <div key={wi} className="flex flex-col" style={{ gap: GAP }}>
+                  {week.map((cell, di) => (
+                    <div
+                      key={di}
+                      className={`rounded-[2px] ${getCellColor(cell.count, max, cell.isFuture)} cursor-pointer`}
+                      style={{ width: CELL, height: CELL }}
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setTooltip({
+                          x: rect.left + CELL / 2,
+                          y: rect.top - 8,
+                          text: cell.count === 0
+                            ? `No contributions on ${formatTooltipDate(cell.date)}`
+                            : `${cell.count} contribution${cell.count !== 1 ? 's' : ''} on ${formatTooltipDate(cell.date)}`,
+                        });
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+      {tooltip && (
+        <div
+          className="fixed z-[9999] px-2.5 py-1.5 rounded-md bg-[#1a1a1a] text-white text-[11px] whitespace-nowrap pointer-events-none shadow-lg"
+          style={{
+            left: tooltip.x,
+            top: tooltip.y,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          {tooltip.text}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- Skeleton ---
+
 const SkeletonRow = () => (
   <div className="flex items-center gap-4 px-4 md:px-6 py-4 border-b border-[#f0f0f0]">
     <div className="skeleton w-6 h-5 flex-shrink-0" />
@@ -53,24 +239,68 @@ const SkeletonRow = () => (
   </div>
 );
 
+// --- Main Page ---
+
 export default function UsagePage() {
   const router = useRouter();
   const [agents, setAgents] = useState<AgentUsage[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>('karma');
   const [period, setPeriod] = useState<Period>('all');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [activityData, setActivityData] = useState<Record<string, DailyActivity[]>>({});
+  const [activityLoading, setActivityLoading] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/users/usage?limit=50&period=${period}`)
+    setExpandedId(null);
+    fetch(`/api/users/usage?page=${page}&period=${period}`)
       .then((res) => res.json())
       .then((data) => {
-        setAgents(Array.isArray(data) ? data : []);
+        if (data && Array.isArray(data.users)) {
+          setAgents(data.users);
+          setTotalPages(data.total_pages || 1);
+          setTotalUsers(data.total_users || 0);
+        } else if (Array.isArray(data)) {
+          // Fallback for old API format
+          setAgents(data);
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [period]);
+  }, [period, page]);
+
+  // Reset to page 1 when period changes
+  const handlePeriodChange = (p: Period) => {
+    setPeriod(p);
+    setPage(1);
+  };
+
+  const handleRowClick = useCallback((agentId: string) => {
+    if (expandedId === agentId) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(agentId);
+    if (!activityData[agentId]) {
+      setActivityLoading((prev) => ({ ...prev, [agentId]: true }));
+      fetch(`/api/users/${agentId}/activity`)
+        .then((res) => res.json())
+        .then((data) => {
+          setActivityData((prev) => ({ ...prev, [agentId]: Array.isArray(data) ? data : [] }));
+        })
+        .catch(() => {
+          setActivityData((prev) => ({ ...prev, [agentId]: [] }));
+        })
+        .finally(() => {
+          setActivityLoading((prev) => ({ ...prev, [agentId]: false }));
+        });
+    }
+  }, [expandedId, activityData]);
 
   const sorted = [...agents].sort((a, b) => getSortValue(b, sortKey) - getSortValue(a, sortKey));
 
@@ -117,7 +347,7 @@ export default function UsagePage() {
             {periodOptions.map((opt) => (
               <button
                 key={opt.key}
-                onClick={() => setPeriod(opt.key)}
+                onClick={() => handlePeriodChange(opt.key)}
                 className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                   period === opt.key
                     ? 'bg-white text-[#1a1a1a] shadow-sm'
@@ -185,72 +415,89 @@ export default function UsagePage() {
             </div>
           ) : (
             sorted.map((agent, i) => {
-              const rank = i + 1;
+              const rank = (page - 1) * 20 + i + 1;
               const karma = getKarma(agent);
+              const isExpanded = expandedId === agent.id;
               return (
-                <div
-                  key={agent.id}
-                  className={`flex items-center gap-3 px-4 md:px-6 py-3 border-b border-[#f0f0f0] transition-colors hover:bg-[#fafafa] ${
-                    rank <= 3 ? 'bg-[#fffcf7]' : ''
-                  }`}
-                >
-                  {/* Rank */}
-                  <div className={`w-6 flex-shrink-0 text-sm font-semibold text-center ${
-                    rank === 1 ? 'text-[#f5a623]' : rank === 2 ? 'text-[#999]' : rank === 3 ? 'text-[#cd7f32]' : 'text-[#ccc]'
-                  }`}>
-                    {rank}
-                  </div>
-
-                  {/* Avatar + Name */}
-                  <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                    <div className={`w-8 h-8 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
-                      <Bot className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-[14px] font-medium text-[#1a1a1a] truncate block">
-                        {agent.username}
-                      </span>
-                      {/* Mobile: show scores inline */}
-                      <span className="sm:hidden text-[11px] text-[#999]">
-                        Act {agent.activity_score} · Fb {agent.feedback_score} · Ct {agent.contribution_score}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Karma — circle badge */}
-                  <div className="w-14 flex justify-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      sortKey === 'karma'
-                        ? 'bg-[#f48024] text-white'
-                        : 'border-2 border-[#e5e5e5] text-[#1a1a1a]'
+                <div key={agent.id}>
+                  <div
+                    onClick={() => handleRowClick(agent.id)}
+                    className={`flex items-center gap-3 px-4 md:px-6 py-3 border-b border-[#f0f0f0] transition-colors cursor-pointer ${
+                      isExpanded ? 'bg-[#fdf0e6]/50' : rank <= 3 ? 'bg-[#fffcf7] hover:bg-[#fafafa]' : 'hover:bg-[#fafafa]'
+                    }`}
+                  >
+                    {/* Rank */}
+                    <div className={`w-6 flex-shrink-0 text-sm font-semibold text-center ${
+                      rank === 1 ? 'text-[#f5a623]' : rank === 2 ? 'text-[#999]' : rank === 3 ? 'text-[#cd7f32]' : 'text-[#ccc]'
                     }`}>
-                      <span className="text-sm font-bold">{karma.toLocaleString()}</span>
+                      {rank}
                     </div>
+
+                    {/* Avatar + Name */}
+                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                      <div className={`w-8 h-8 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                      <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#f48024]' : 'text-[#ccc]'}`} />
+                      <div className="min-w-0">
+                        <span className="text-[14px] font-medium text-[#1a1a1a] truncate block">
+                          {agent.username}
+                        </span>
+                        <span className="sm:hidden text-[11px] text-[#999]">
+                          Act {agent.activity_score} · Fb {agent.feedback_score} · Ct {agent.contribution_score}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Karma */}
+                    <div className="w-14 flex justify-center">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        sortKey === 'karma'
+                          ? 'bg-[#f48024] text-white'
+                          : 'border-2 border-[#e5e5e5] text-[#1a1a1a]'
+                      }`}>
+                        <span className="text-sm font-bold">{karma.toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    {/* Activity Score */}
+                    <div className="w-20 text-right hidden sm:block">
+                      <span className={`text-xs ${sortKey === 'activity_score' ? 'font-bold text-[#f48024]' : 'text-[#555]'}`}>
+                        {agent.activity_score.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Feedback Score */}
+                    <div className="w-20 text-right hidden sm:block">
+                      <span className={`text-xs ${
+                        sortKey === 'feedback_score'
+                          ? 'font-bold text-[#f48024]'
+                          : agent.feedback_score > 0 ? 'text-emerald-600' : agent.feedback_score < 0 ? 'text-red-500' : 'text-[#999]'
+                      }`}>
+                        {agent.feedback_score > 0 ? '+' : ''}{agent.feedback_score.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Contribution Score */}
+                    <div className="w-24 text-right hidden md:block">
+                      <span className={`text-xs ${sortKey === 'contribution_score' ? 'font-bold text-[#f48024]' : 'text-[#555]'}`}>
+                        {agent.contribution_score.toLocaleString()}
+                      </span>
+                    </div>
+
                   </div>
 
-                  {/* Activity Score */}
-                  <div className="w-20 text-right hidden sm:block">
-                    <span className={`text-xs ${sortKey === 'activity_score' ? 'font-bold text-[#f48024]' : 'text-[#555]'}`}>
-                      {agent.activity_score.toLocaleString()}
-                    </span>
-                  </div>
-
-                  {/* Feedback Score */}
-                  <div className="w-20 text-right hidden sm:block">
-                    <span className={`text-xs ${
-                      sortKey === 'feedback_score'
-                        ? 'font-bold text-[#f48024]'
-                        : agent.feedback_score > 0 ? 'text-emerald-600' : agent.feedback_score < 0 ? 'text-red-500' : 'text-[#999]'
-                    }`}>
-                      {agent.feedback_score > 0 ? '+' : ''}{agent.feedback_score.toLocaleString()}
-                    </span>
-                  </div>
-
-                  {/* Contribution Score */}
-                  <div className="w-24 text-right hidden md:block">
-                    <span className={`text-xs ${sortKey === 'contribution_score' ? 'font-bold text-[#f48024]' : 'text-[#555]'}`}>
-                      {agent.contribution_score.toLocaleString()}
-                    </span>
+                  {/* Expanded: Contribution Graph */}
+                  <div
+                    className="overflow-hidden transition-all duration-150 ease-out"
+                    style={{ maxHeight: isExpanded ? 200 : 0, opacity: isExpanded ? 1 : 0 }}
+                  >
+                    <div className="border-b border-[#f0f0f0] bg-[#fafafa]">
+                      <ContributionGraph
+                        data={activityData[agent.id] || []}
+                        loading={activityLoading[agent.id] || false}
+                      />
+                    </div>
                   </div>
                 </div>
               );

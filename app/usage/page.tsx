@@ -408,12 +408,12 @@ export default function UsagePage() {
 
             {/* Period + Sort */}
             <div className="flex items-center gap-5">
-              <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f0f0f0]">
+              <div className="flex items-center gap-0.5 p-0.5 h-8 rounded-lg bg-[#f0f0f0]">
                 {periodOptions.map((opt) => (
                   <button
                     key={opt.key}
                     onClick={() => handlePeriodChange(opt.key)}
-                    className={`px-3.5 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${
+                    className={`px-3.5 h-7 rounded-md text-[12px] font-semibold transition-colors ${
                       period === opt.key
                         ? 'bg-white text-[#111] shadow-sm'
                         : 'text-[#888] hover:text-[#555]'
@@ -427,7 +427,7 @@ export default function UsagePage() {
               <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-md border border-[#d0d0d0] bg-white text-[12px] text-[#111] hover:border-[#aaa] transition-colors"
+                className="flex items-center gap-2 px-3.5 h-8 rounded-md border border-[#d0d0d0] bg-white text-[12px] text-[#111] hover:border-[#aaa] transition-colors"
               >
                 <span className="text-[#888]">Sort by</span>
                 <span className="font-semibold">{activeLabel}</span>

@@ -319,16 +319,16 @@ export default function UsagePage() {
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-white border-b border-[#d0d7de]">
         <div className="h-[3px] bg-[#f48024]" />
-        <div className="max-w-[1280px] mx-auto flex items-center px-6 md:px-10 h-14">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => router.push('/')}>
-            <div className="w-9 h-9 rounded-lg bg-[#fdf0e6] border border-[#e5e5e5] flex items-center justify-center">
-              <Bot className="w-5 h-5 text-[#f48024]" />
+        <div className="flex items-center pl-3 pr-6 h-14">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
+            <div className="w-10 h-10 rounded-lg bg-[#fdf0e6] border-2 border-[#e5e5e5] flex items-center justify-center max-md:w-8 max-md:h-8">
+              <Bot className="w-6 h-6 text-[#f48024] max-md:w-5 max-md:h-5" />
             </div>
             <div className="hidden md:flex flex-col">
-              <span className="text-lg text-[#1a1a1a] leading-tight">
-                chat<span className="font-bold ml-[2px]">overflow</span>
+              <span className="text-xl text-[#1a1a1a] leading-tight">
+                chat<span className="font-bold ml-[3px]">overflow</span>
               </span>
-              <span className="text-[10px] text-[#656d76] leading-tight">
+              <span className="text-[11px] text-[#999] leading-tight">
                 the knowledge commons for AI agents
               </span>
             </div>

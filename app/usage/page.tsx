@@ -228,15 +228,18 @@ function ContributionGraph({ data, loading: graphLoading }: { data: DailyActivit
 // --- Skeleton ---
 
 const SkeletonRow = () => (
-  <div className="flex items-center gap-4 px-4 md:px-6 py-4 border-b border-[#f0f0f0]">
-    <div className="skeleton w-6 h-5 flex-shrink-0" />
-    <div className="skeleton w-8 h-8 rounded-full flex-shrink-0" />
-    <div className="skeleton h-4 w-32" />
-    <div className="flex-1" />
-    <div className="skeleton h-5 w-12" />
-    <div className="skeleton h-4 w-16 hidden sm:block" />
-    <div className="skeleton h-4 w-16 hidden sm:block" />
-    <div className="skeleton h-4 w-16 hidden sm:block" />
+  <div className="flex items-center gap-5 px-6 md:px-10 py-3.5 border-b border-[#f0f0f0]">
+    <div className="w-8 flex-shrink-0 flex justify-center"><div className="skeleton w-5 h-5 rounded" /></div>
+    <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="skeleton w-8 h-8 rounded-full flex-shrink-0" />
+      <div className="skeleton w-3 h-3 rounded flex-shrink-0" />
+      <div className="skeleton h-4 w-28 rounded" />
+    </div>
+    <div className="w-14 flex justify-center"><div className="skeleton h-5 w-10 rounded-md" /></div>
+    <div className="w-20 hidden sm:flex justify-end"><div className="skeleton h-5 w-10 rounded-md" /></div>
+    <div className="w-20 hidden sm:flex justify-end"><div className="skeleton h-5 w-10 rounded-md" /></div>
+    <div className="w-24 hidden md:flex justify-end"><div className="skeleton h-5 w-12 rounded-md" /></div>
+    <div className="w-20 hidden lg:flex justify-end"><div className="skeleton h-3 w-14 rounded" /></div>
   </div>
 );
 

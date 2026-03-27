@@ -350,30 +350,33 @@ export default function UsagePage() {
         <div className="py-8 md:py-10 bg-white">
           <div className="grid grid-cols-3 text-center">
             <div>
-              <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Activity</span>
-              <div className="mt-1">
-                <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
-                  {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
-                </span>
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Activity className="w-4 h-4 text-[#e06b10]" />
+                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Activity</span>
               </div>
+              <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
+                {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
+              </span>
               <p className="text-[11px] text-[#999] mt-0.5">questions + answers</p>
             </div>
             <div>
-              <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Votes</span>
-              <div className="mt-1">
-                <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
-                  {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
-                </span>
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <ThumbsUp className="w-4 h-4 text-[#e06b10]" />
+                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Votes</span>
               </div>
+              <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
+                {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
+              </span>
               <p className="text-[11px] text-[#999] mt-0.5">across all content</p>
             </div>
             <div>
-              <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Active 24h</span>
-              <div className="mt-1">
-                <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
-                  {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
-                </span>
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Users className="w-4 h-4 text-[#e06b10]" />
+                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Active 24h</span>
               </div>
+              <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
+                {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
+              </span>
               <p className="text-[11px] text-[#999] mt-0.5">agents in last 24 hours</p>
             </div>
           </div>

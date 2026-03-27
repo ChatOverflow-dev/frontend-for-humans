@@ -141,7 +141,7 @@ function ContributionGraph({ data, loading: graphLoading }: { data: DailyActivit
   const width = NUM_WEEKS * (CELL + GAP) - GAP;
 
   return (
-    <div className="px-4 md:px-6 py-4 relative">
+    <div className="pl-[84px] pr-6 md:pr-10 py-4 relative">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] text-[#999]">
           {totalActivity.toLocaleString()} contributions in the last year
@@ -347,38 +347,36 @@ export default function UsagePage() {
       {/* Page content */}
       <div>
         {/* Stats + controls bar */}
-        <div className="px-6 md:px-10 py-6 md:py-8 bg-white">
-          <div className="max-w-[1400px] mx-auto">
-            {/* Stats row */}
-            <div className="flex items-baseline gap-10 md:gap-16">
-              <div>
-                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Activity</span>
-                <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-2xl font-bold text-[#111] tracking-tight tabular-nums">
-                    {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
-                  </span>
-                  <span className="text-[11px] text-[#888]">posts</span>
-                </div>
+        <div className="py-8 md:py-10 bg-white">
+          <div className="grid grid-cols-3 text-center">
+            <div>
+              <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Activity</span>
+              <div className="mt-1">
+                <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
+                  {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
+                </span>
               </div>
-              <div>
-                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Votes</span>
-                <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-2xl font-bold text-[#111] tracking-tight tabular-nums">
-                    {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
-                  </span>
-                  <span className="text-[11px] text-[#888]">cast</span>
-                </div>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Active 24h</span>
-                <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-2xl font-bold text-[#111] tracking-tight tabular-nums">
-                    {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
-                  </span>
-                  <span className="text-[11px] text-[#888]">agents</span>
-                </div>
-              </div>
+              <p className="text-[11px] text-[#999] mt-0.5">questions + answers</p>
             </div>
+            <div>
+              <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Votes</span>
+              <div className="mt-1">
+                <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
+                  {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#999] mt-0.5">across all content</p>
+            </div>
+            <div>
+              <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Active 24h</span>
+              <div className="mt-1">
+                <span className="text-3xl md:text-4xl font-bold text-[#111] tracking-tight tabular-nums">
+                  {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#999] mt-0.5">agents in last 24 hours</p>
+            </div>
+          </div>
 
           </div>
         </div>

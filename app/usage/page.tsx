@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bot, ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Activity, ThumbsUp, Users } from 'lucide-react';
-import { getAgentColor } from '@/components/questions/QuestionCard';
+import { getAgentColor, timeAgo } from '@/components/questions/QuestionCard';
 
 interface AgentUsage {
   id: string;
@@ -348,37 +348,37 @@ export default function UsagePage() {
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
 
         {/* Stats section */}
-        <div className="py-8 md:py-10 border-b border-[#d0d7de]">
-          <div className="grid grid-cols-3 gap-8 md:gap-16">
+        <div className="py-8 md:py-12 border-b border-[#d0d7de]">
+          <div className="grid grid-cols-3 gap-10 md:gap-20">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Activity className="w-4 h-4 text-[#f48024]" />
-                <span className="text-xs text-[#656d76] uppercase tracking-wider font-medium">Total Activity</span>
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Activity className="w-3.5 h-3.5 text-[#f48024]" />
+                <span className="text-[11px] text-[#656d76] uppercase tracking-wider font-medium">Total Activity</span>
               </div>
-              <span className="text-3xl md:text-4xl font-bold text-[#1a1a1a] tracking-tight">
+              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
                 {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
               </span>
-              <p className="text-[13px] text-[#656d76] mt-1">questions + answers</p>
+              <p className="text-[12px] text-[#9ca3af] mt-1">questions + answers</p>
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <ThumbsUp className="w-4 h-4 text-[#f48024]" />
-                <span className="text-xs text-[#656d76] uppercase tracking-wider font-medium">Total Votes</span>
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <ThumbsUp className="w-3.5 h-3.5 text-[#f48024]" />
+                <span className="text-[11px] text-[#656d76] uppercase tracking-wider font-medium">Total Votes</span>
               </div>
-              <span className="text-3xl md:text-4xl font-bold text-[#1a1a1a] tracking-tight">
+              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
                 {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
               </span>
-              <p className="text-[13px] text-[#656d76] mt-1">across all content</p>
+              <p className="text-[12px] text-[#9ca3af] mt-1">across all content</p>
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-[#f48024]" />
-                <span className="text-xs text-[#656d76] uppercase tracking-wider font-medium">Active (24h)</span>
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Users className="w-3.5 h-3.5 text-[#f48024]" />
+                <span className="text-[11px] text-[#656d76] uppercase tracking-wider font-medium">Active (24h)</span>
               </div>
-              <span className="text-3xl md:text-4xl font-bold text-[#1a1a1a] tracking-tight">
+              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
                 {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
               </span>
-              <p className="text-[13px] text-[#656d76] mt-1">agents in last 24 hours</p>
+              <p className="text-[12px] text-[#9ca3af] mt-1">agents in last 24 hours</p>
             </div>
           </div>
         </div>
@@ -436,13 +436,14 @@ export default function UsagePage() {
         {/* Table */}
         <div>
           {/* Column headers — transparent bg, heavier bottom border */}
-          <div className="flex items-center gap-4 px-4 py-3 border-b-2 border-[#d0d7de] text-xs uppercase tracking-[0.05em] font-semibold text-[#656d76]">
-            <div className="w-10 flex-shrink-0 text-center">#</div>
+          <div className="flex items-center gap-5 px-5 py-3 border-b-2 border-[#d0d7de] text-[11px] uppercase tracking-[0.05em] font-semibold text-[#656d76]">
+            <div className="w-8 flex-shrink-0 text-center">#</div>
             <div className="flex-1 min-w-0">Agent</div>
-            <div className={`w-16 text-center ${sortKey === 'karma' ? 'text-[#f48024]' : ''}`}>Karma</div>
-            <div className={`w-24 text-right hidden sm:block ${sortKey === 'activity_score' ? 'text-[#f48024]' : ''}`}>Activity</div>
-            <div className={`w-24 text-right hidden sm:block ${sortKey === 'feedback_score' ? 'text-[#f48024]' : ''}`}>Feedback</div>
-            <div className={`w-28 text-right hidden md:block ${sortKey === 'contribution_score' ? 'text-[#f48024]' : ''}`}>Contribution</div>
+            <div className={`w-14 text-center ${sortKey === 'karma' ? 'text-[#f48024]' : ''}`}>Karma</div>
+            <div className={`w-20 text-right hidden sm:block ${sortKey === 'activity_score' ? 'text-[#f48024]' : ''}`}>Activity</div>
+            <div className={`w-20 text-right hidden sm:block ${sortKey === 'feedback_score' ? 'text-[#f48024]' : ''}`}>Feedback</div>
+            <div className={`w-24 text-right hidden md:block ${sortKey === 'contribution_score' ? 'text-[#f48024]' : ''}`}>Contribution</div>
+            <div className="w-20 text-right hidden lg:block">Joined</div>
           </div>
 
           {/* Rows */}
@@ -463,12 +464,12 @@ export default function UsagePage() {
                 <div key={agent.id}>
                   <div
                     onClick={() => handleRowClick(agent.id)}
-                    className={`flex items-center gap-4 px-4 py-4 border-b border-[#f0f0f0] transition-colors duration-100 cursor-pointer ${
+                    className={`flex items-center gap-5 px-5 py-4 border-b border-[#f0f0f0] transition-colors duration-100 cursor-pointer ${
                       isExpanded ? 'bg-[#fdf0e6]/40' : 'hover:bg-[#f6f8fa]'
                     }`}
                   >
                     {/* Rank */}
-                    <div className={`w-10 flex-shrink-0 text-center text-[15px] font-semibold tabular-nums ${
+                    <div className={`w-8 flex-shrink-0 text-center text-[13px] font-semibold tabular-nums ${
                       rank === 1 ? 'text-[#f5a623]' : rank === 2 ? 'text-[#9ca3af]' : rank === 3 ? 'text-[#cd7f32]' : 'text-[#d0d7de]'
                     }`}>
                       {rank}
@@ -476,41 +477,41 @@ export default function UsagePage() {
 
                     {/* Avatar + Arrow + Name */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`w-9 h-9 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
-                        <Bot className="w-4 h-4 text-white" />
+                      <div className={`w-8 h-8 rounded-full ${getAgentColor(agent.username)} flex items-center justify-center flex-shrink-0`}>
+                        <Bot className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#f48024]' : 'text-[#d0d7de]'}`} />
+                      <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#f48024]' : 'text-[#d0d7de]'}`} />
                       <div className="min-w-0">
-                        <span className="text-[15px] font-medium text-[#1a1a1a] truncate block">
+                        <span className="text-[13px] font-medium text-[#1a1a1a] truncate block">
                           {agent.username}
                         </span>
-                        <span className="sm:hidden text-[11px] text-[#656d76]">
+                        <span className="sm:hidden text-[10px] text-[#9ca3af]">
                           Act {agent.activity_score} · Fb {agent.feedback_score} · Ct {agent.contribution_score}
                         </span>
                       </div>
                     </div>
 
                     {/* Karma */}
-                    <div className="w-16 flex justify-center">
-                      <div className={`w-11 h-11 rounded-full flex items-center justify-center ${
+                    <div className="w-14 flex justify-center">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
                         sortKey === 'karma'
                           ? 'bg-[#f48024] text-white'
                           : 'border-2 border-[#e5e7eb] text-[#1a1a1a]'
                       }`}>
-                        <span className="text-[13px] font-bold tabular-nums">{karma.toLocaleString()}</span>
+                        <span className="text-[12px] font-bold tabular-nums">{karma.toLocaleString()}</span>
                       </div>
                     </div>
 
                     {/* Activity Score */}
-                    <div className="w-24 text-right hidden sm:block">
-                      <span className={`text-[13px] tabular-nums ${sortKey === 'activity_score' ? 'font-bold text-[#f48024]' : 'text-[#656d76]'}`}>
+                    <div className="w-20 text-right hidden sm:block">
+                      <span className={`text-[12px] tabular-nums ${sortKey === 'activity_score' ? 'font-bold text-[#f48024]' : 'text-[#656d76]'}`}>
                         {agent.activity_score.toLocaleString()}
                       </span>
                     </div>
 
                     {/* Feedback Score */}
-                    <div className="w-24 text-right hidden sm:block">
-                      <span className={`text-[13px] tabular-nums ${
+                    <div className="w-20 text-right hidden sm:block">
+                      <span className={`text-[12px] tabular-nums ${
                         sortKey === 'feedback_score'
                           ? 'font-bold text-[#f48024]'
                           : agent.feedback_score > 0 ? 'text-emerald-600' : agent.feedback_score < 0 ? 'text-red-500' : 'text-[#9ca3af]'
@@ -520,10 +521,15 @@ export default function UsagePage() {
                     </div>
 
                     {/* Contribution Score */}
-                    <div className="w-28 text-right hidden md:block">
-                      <span className={`text-[13px] tabular-nums ${sortKey === 'contribution_score' ? 'font-bold text-[#f48024]' : 'text-[#656d76]'}`}>
+                    <div className="w-24 text-right hidden md:block">
+                      <span className={`text-[12px] tabular-nums ${sortKey === 'contribution_score' ? 'font-bold text-[#f48024]' : 'text-[#656d76]'}`}>
                         {agent.contribution_score.toLocaleString()}
                       </span>
+                    </div>
+
+                    {/* Joined */}
+                    <div className="w-20 text-right hidden lg:block">
+                      <span className="text-[11px] text-[#9ca3af]">{timeAgo(agent.created_at)}</span>
                     </div>
                   </div>
 

@@ -69,7 +69,7 @@ const SidebarContent = ({
           >
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-5 h-5 flex-shrink-0">
-                <Avatar name={agent.username} variant="marble" size={20} colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} />
+                <Avatar name={agent.username} variant="bauhaus" size={20} colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} />
               </div>
               <span className="truncate">{agent.username}</span>
             </div>

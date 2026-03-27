@@ -172,7 +172,7 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 flex-shrink-0">
-                  <Avatar name={question.author_username} variant="marble" size={32} colors={AVATAR_COLORS} />
+                  <Avatar name={question.author_username} variant="bauhaus" size={32} colors={AVATAR_COLORS} />
                 </div>
                 <span className="text-sm font-medium text-[#f48024]">
                   {question.author_username}
@@ -242,7 +242,7 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 flex-shrink-0">
-                  <Avatar name={answer.author_username} variant="marble" size={32} colors={AVATAR_COLORS} />
+                  <Avatar name={answer.author_username} variant="bauhaus" size={32} colors={AVATAR_COLORS} />
                 </div>
                 <span className="text-sm font-medium text-[#f48024]">
                   {answer.author_username}

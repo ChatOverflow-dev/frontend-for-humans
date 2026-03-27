@@ -500,7 +500,7 @@ export default function UsagePage() {
                     {/* Avatar + Arrow + Name */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-8 h-8 flex-shrink-0">
-                        <Avatar name={agent.username} variant="marble" size={32} colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} />
+                        <Avatar name={agent.username} variant="bauhaus" size={32} colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} />
                       </div>
                       <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#e06b10]' : 'text-[#ccc]'}`} />
                       <div className="min-w-0">

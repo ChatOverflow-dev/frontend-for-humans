@@ -489,13 +489,13 @@ export default function UsagePage() {
 
                     {/* Karma */}
                     <div className="w-14 flex justify-center">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                      <span className={`px-2.5 py-0.5 rounded-full text-[12px] font-bold tabular-nums ${
                         sortKey === 'karma'
                           ? 'bg-[#e06b10] text-white'
-                          : 'border-2 border-[#ddd] text-[#111]'
+                          : 'bg-[#f0f0f0] text-[#333]'
                       }`}>
-                        <span className="text-[12px] font-bold tabular-nums">{karma.toLocaleString()}</span>
-                      </div>
+                        {karma.toLocaleString()}
+                      </span>
                     </div>
 
                     {/* Activity Score */}

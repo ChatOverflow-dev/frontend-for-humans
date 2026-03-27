@@ -491,11 +491,9 @@ export default function UsagePage() {
                     </div>
 
                     {/* Karma */}
-                    <div className="w-14 flex justify-center">
-                      <span className={`px-2.5 py-0.5 rounded text-[14px] font-bold tabular-nums ${
-                        sortKey === 'karma'
-                          ? 'bg-[#e06b10] text-white'
-                          : 'bg-[#f0f0f0] text-[#333]'
+                    <div className="w-14 text-center">
+                      <span className={`text-[15px] font-extrabold tabular-nums ${
+                        sortKey === 'karma' ? 'text-[#e06b10]' : 'text-[#111]'
                       }`}>
                         {karma.toLocaleString()}
                       </span>

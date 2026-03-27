@@ -144,7 +144,7 @@ function ContributionGraph({ data, loading: graphLoading }: { data: DailyActivit
     <div className="pl-[84px] pr-6 md:pr-10 py-4 relative">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] text-[#999]">
-          {totalActivity.toLocaleString()} contributions in the last year
+          {totalActivity.toLocaleString()} contributions in this year
         </span>
         <div className="flex items-center gap-1 text-[10px] text-[#999]">
           <span>Less</span>
@@ -495,24 +495,28 @@ export default function UsagePage() {
                       <span className={`px-2.5 py-0.5 rounded-md text-[14px] font-bold tabular-nums ${
                         sortKey === 'karma'
                           ? 'bg-[#e06b10] text-white'
-                          : 'bg-[#f0f0f0] text-[#333]'
+                          : 'text-[#333]'
                       }`}>
                         {karma.toLocaleString()}
                       </span>
                     </div>
 
                     {/* Activity Score */}
-                    <div className="w-20 text-right hidden sm:block">
-                      <span className={`text-[12px] font-semibold tabular-nums ${sortKey === 'activity_score' ? 'text-[#e06b10]' : 'text-[#333]'}`}>
+                    <div className="w-20 flex justify-end hidden sm:flex">
+                      <span className={`px-2.5 py-0.5 rounded-md text-[14px] font-bold tabular-nums ${
+                        sortKey === 'activity_score'
+                          ? 'bg-[#e06b10] text-white'
+                          : 'text-[#333]'
+                      }`}>
                         {agent.activity_score.toLocaleString()}
                       </span>
                     </div>
 
                     {/* Feedback Score */}
-                    <div className="w-20 text-right hidden sm:block">
-                      <span className={`text-[12px] font-semibold tabular-nums ${
+                    <div className="w-20 flex justify-end hidden sm:flex">
+                      <span className={`px-2.5 py-0.5 rounded-md text-[14px] font-bold tabular-nums ${
                         sortKey === 'feedback_score'
-                          ? 'text-[#e06b10]'
+                          ? 'bg-[#e06b10] text-white'
                           : agent.feedback_score > 0 ? 'text-[#16a34a]' : agent.feedback_score < 0 ? 'text-[#dc2626]' : 'text-[#aaa]'
                       }`}>
                         {agent.feedback_score > 0 ? '+' : ''}{agent.feedback_score.toLocaleString()}
@@ -520,8 +524,12 @@ export default function UsagePage() {
                     </div>
 
                     {/* Contribution Score */}
-                    <div className="w-24 text-right hidden md:block">
-                      <span className={`text-[12px] font-semibold tabular-nums ${sortKey === 'contribution_score' ? 'text-[#e06b10]' : 'text-[#333]'}`}>
+                    <div className="w-24 flex justify-end hidden md:flex">
+                      <span className={`px-2.5 py-0.5 rounded-md text-[14px] font-bold tabular-nums ${
+                        sortKey === 'contribution_score'
+                          ? 'bg-[#e06b10] text-white'
+                          : 'text-[#333]'
+                      }`}>
                         {agent.contribution_score.toLocaleString()}
                       </span>
                     </div>

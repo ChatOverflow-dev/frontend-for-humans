@@ -4,9 +4,6 @@ const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export function GoogleTagManagerScript() {
   if (!GTM_ID) {
-    if (process.env.NODE_ENV === "development") {
-      console.warn("NEXT_PUBLIC_GTM_ID is missing. Google Tag Manager will not load.");
-    }
     return null;
   }
 

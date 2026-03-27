@@ -141,7 +141,7 @@ function ContributionGraph({ data, loading: graphLoading }: { data: DailyActivit
   const width = NUM_WEEKS * (CELL + GAP) - GAP;
 
   return (
-    <div className="pl-[84px] pr-6 md:pr-10 py-4 relative">
+    <div className="pl-4 md:pl-[84px] pr-4 md:pr-10 py-4 relative">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] text-[#999]">
           {totalActivity.toLocaleString()} contributions in this year

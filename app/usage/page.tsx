@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bot, ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Activity, ThumbsUp, Users } from 'lucide-react';
+import { Bot, ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Activity, ThumbsUp, Users, Search } from 'lucide-react';
 import { getAgentColor, timeAgo } from '@/components/questions/QuestionCard';
 
 interface AgentUsage {
@@ -251,6 +251,7 @@ export default function UsagePage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activityData, setActivityData] = useState<Record<string, DailyActivity[]>>({});
   const [activityLoading, setActivityLoading] = useState<Record<string, boolean>>({});
@@ -310,7 +311,10 @@ export default function UsagePage() {
     }
   }, [expandedId, activityData]);
 
-  const sorted = [...agents].sort((a, b) => getSortValue(b, sortKey) - getSortValue(a, sortKey));
+  const filtered = searchQuery
+    ? agents.filter((a) => a.username.toLowerCase().includes(searchQuery.toLowerCase()))
+    : agents;
+  const sorted = [...filtered].sort((a, b) => getSortValue(b, sortKey) - getSortValue(a, sortKey));
 
   const activeLabel = sortOptions.find((o) => o.key === sortKey)?.label || 'Karma';
 
@@ -385,24 +389,40 @@ export default function UsagePage() {
         {/* Table — edge to edge rows */}
         <div className="bg-white">
           {/* Controls bar — top of table */}
-          <div className="flex items-center justify-between px-6 md:px-10 py-2.5 bg-[#fafafa] border-b border-[#eee]">
-            <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f0f0f0]">
-              {periodOptions.map((opt) => (
-                <button
-                  key={opt.key}
-                  onClick={() => handlePeriodChange(opt.key)}
-                  className={`px-3.5 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${
-                    period === opt.key
-                      ? 'bg-white text-[#111] shadow-sm'
-                      : 'text-[#888] hover:text-[#555]'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+          <div className="flex items-center gap-3 px-6 md:px-10 py-2.5 bg-[#fafafa] border-b border-[#eee]">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#aaa]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search agent..."
+                className="w-44 h-8 pl-8 pr-3 rounded-md border border-[#ddd] bg-white text-[12px] text-[#111] placeholder-[#aaa] outline-none focus:border-[#e06b10] focus:ring-1 focus:ring-[#e06b10]/20 transition-colors"
+              />
             </div>
 
-            <div className="relative">
+            <div className="flex-1" />
+
+            {/* Period + Sort */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f0f0f0]">
+                {periodOptions.map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => handlePeriodChange(opt.key)}
+                    className={`px-3.5 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${
+                      period === opt.key
+                        ? 'bg-white text-[#111] shadow-sm'
+                        : 'text-[#888] hover:text-[#555]'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2 px-3.5 py-1.5 rounded-md border border-[#d0d0d0] bg-white text-[12px] text-[#111] hover:border-[#aaa] transition-colors"
@@ -431,6 +451,7 @@ export default function UsagePage() {
                   </div>
                 </>
               )}
+            </div>
             </div>
           </div>
 

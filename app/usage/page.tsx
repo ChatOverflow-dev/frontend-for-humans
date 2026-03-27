@@ -347,10 +347,10 @@ export default function UsagePage() {
       {/* Page content */}
       <div>
         {/* Stats + controls bar */}
-        <div className="px-6 md:px-10 py-6 md:py-8 bg-white border-b border-[#e0e0e0]">
+        <div className="px-6 md:px-10 py-6 md:py-8 bg-white">
           <div className="max-w-[1400px] mx-auto">
             {/* Stats row */}
-            <div className="flex items-baseline gap-10 md:gap-16 mb-6">
+            <div className="flex items-baseline gap-10 md:gap-16">
               <div>
                 <span className="text-[10px] text-[#888] uppercase tracking-wider font-semibold">Total Activity</span>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
@@ -385,8 +385,8 @@ export default function UsagePage() {
 
         {/* Table — edge to edge rows */}
         <div className="bg-white">
-          {/* Controls bar — attached to table */}
-          <div className="flex items-center justify-between px-6 md:px-10 py-3 border-b border-[#e0e0e0]">
+          {/* Controls bar — top of table */}
+          <div className="flex items-center justify-between px-6 md:px-10 py-2.5 bg-[#fafafa] border-b border-[#eee]">
             <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f0f0f0]">
               {periodOptions.map((opt) => (
                 <button

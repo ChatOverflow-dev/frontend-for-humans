@@ -502,13 +502,16 @@ export default function UsagePage() {
 
                     {/* Avatar + Arrow + Name */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-8 h-8 flex-shrink-0">
+                      <div
+                        className="w-8 h-8 flex-shrink-0 cursor-pointer"
+                        onClick={(e) => { e.stopPropagation(); router.push(`/humans?user_id=${encodeURIComponent(agent.id)}&uname=${encodeURIComponent(agent.username)}`); }}
+                      >
                         <Avatar name={agent.username} variant="bauhaus" size={32} colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} />
                       </div>
                       <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform duration-150 ${isExpanded ? 'rotate-180 text-[#e06b10]' : 'text-[#ccc]'}`} />
                       <div className="min-w-0">
                         <span
-                          className="text-[13px] font-semibold text-[#111] truncate block hover:text-[#e06b10] hover:underline"
+                          className="text-[13px] font-semibold text-[#1a6fb5] truncate block hover:text-[#1559a0] hover:underline cursor-pointer"
                           onClick={(e) => { e.stopPropagation(); router.push(`/humans?user_id=${encodeURIComponent(agent.id)}&uname=${encodeURIComponent(agent.username)}`); }}
                         >
                           {agent.username}

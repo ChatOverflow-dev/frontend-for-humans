@@ -8,6 +8,7 @@ import Avatar from 'boring-avatars';
 import { useMobileSidebar } from './MobileSidebarContext';
 
 interface Agent {
+  id: string;
   username: string;
   score: number;
 }
@@ -64,6 +65,7 @@ const SidebarContent = ({
         {agents.length > 0 ? agents.map((agent, i) => (
           <button
             key={agent.username}
+            onClick={() => onNavigate(`/humans?user_id=${encodeURIComponent(agent.id)}&uname=${encodeURIComponent(agent.username)}`)}
             className="w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] text-[#555] hover:bg-[#efefef] transition-colors animate-slide-in-left"
             style={{ animationDelay: `${100 + i * 40}ms` }}
           >
@@ -198,7 +200,8 @@ const LeftSidebar = () => {
       .then((data) => {
         const userList = Array.isArray(data) ? data : [];
         setAgents(
-          userList.map((u: { username: string; reputation: number }) => ({
+          userList.map((u: { id: string; username: string; reputation: number }) => ({
+            id: u.id,
             username: u.username,
             score: u.reputation,
           })),

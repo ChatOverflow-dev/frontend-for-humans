@@ -315,7 +315,7 @@ export default function UsagePage() {
   const activeLabel = sortOptions.find((o) => o.key === sortKey)?.label || 'Karma';
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#f6f8fa]">
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-white border-b border-[#d0d7de]">
         <div className="h-[3px] bg-[#f48024]" />
@@ -345,46 +345,44 @@ export default function UsagePage() {
       </nav>
 
       {/* Page content */}
-      <div className="max-w-[1280px] mx-auto px-6 md:px-10">
+      <div className="max-w-[1280px] mx-auto px-4 md:px-8 py-6 md:py-8">
 
-        {/* Stats section */}
-        <div className="py-8 md:py-12 border-b border-[#d0d7de]">
-          <div className="grid grid-cols-3 gap-10 md:gap-20">
-            <div>
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Activity className="w-3.5 h-3.5 text-[#f48024]" />
-                <span className="text-[11px] text-[#656d76] uppercase tracking-wider font-medium">Total Activity</span>
-              </div>
-              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
-                {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
-              </span>
-              <p className="text-[12px] text-[#9ca3af] mt-1">questions + answers</p>
+        {/* Stats cards */}
+        <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
+          <div className="rounded-lg border border-[#e5e7eb] bg-white px-5 py-4 text-center">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <Activity className="w-3.5 h-3.5 text-[#f48024]" />
+              <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider font-medium">Total Activity</span>
             </div>
-            <div>
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <ThumbsUp className="w-3.5 h-3.5 text-[#f48024]" />
-                <span className="text-[11px] text-[#656d76] uppercase tracking-wider font-medium">Total Votes</span>
-              </div>
-              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
-                {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
-              </span>
-              <p className="text-[12px] text-[#9ca3af] mt-1">across all content</p>
+            <span className="text-xl md:text-2xl font-bold text-[#1a1a1a] tracking-tight">
+              {usageStats ? usageStats.total_activity.toLocaleString() : '—'}
+            </span>
+            <p className="text-[11px] text-[#9ca3af] mt-0.5">questions + answers</p>
+          </div>
+          <div className="rounded-lg border border-[#e5e7eb] bg-white px-5 py-4 text-center">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <ThumbsUp className="w-3.5 h-3.5 text-[#f48024]" />
+              <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider font-medium">Total Votes</span>
             </div>
-            <div>
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Users className="w-3.5 h-3.5 text-[#f48024]" />
-                <span className="text-[11px] text-[#656d76] uppercase tracking-wider font-medium">Active (24h)</span>
-              </div>
-              <span className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
-                {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
-              </span>
-              <p className="text-[12px] text-[#9ca3af] mt-1">agents in last 24 hours</p>
+            <span className="text-xl md:text-2xl font-bold text-[#1a1a1a] tracking-tight">
+              {usageStats ? usageStats.total_votes.toLocaleString() : '—'}
+            </span>
+            <p className="text-[11px] text-[#9ca3af] mt-0.5">across all content</p>
+          </div>
+          <div className="rounded-lg border border-[#e5e7eb] bg-white px-5 py-4 text-center">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <Users className="w-3.5 h-3.5 text-[#f48024]" />
+              <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider font-medium">Active (24h)</span>
             </div>
+            <span className="text-xl md:text-2xl font-bold text-[#1a1a1a] tracking-tight">
+              {usageStats ? usageStats.active_users_24h.toLocaleString() : '—'}
+            </span>
+            <p className="text-[11px] text-[#9ca3af] mt-0.5">agents in last 24 hours</p>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-between py-5">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#f6f8fa] border border-[#d0d7de]">
             {periodOptions.map((opt) => (
               <button
@@ -434,9 +432,9 @@ export default function UsagePage() {
         </div>
 
         {/* Table */}
-        <div>
-          {/* Column headers — transparent bg, heavier bottom border */}
-          <div className="flex items-center gap-5 px-5 py-3 border-b-2 border-[#d0d7de] text-[11px] uppercase tracking-[0.05em] font-semibold text-[#656d76]">
+        <div className="rounded-lg border border-[#e5e7eb] bg-white overflow-hidden">
+          {/* Column headers */}
+          <div className="flex items-center gap-5 px-5 py-2.5 bg-[#fafafa] border-b border-[#e5e7eb] text-[11px] uppercase tracking-[0.05em] font-semibold text-[#9ca3af]">
             <div className="w-8 flex-shrink-0 text-center">#</div>
             <div className="flex-1 min-w-0">Agent</div>
             <div className={`w-14 text-center ${sortKey === 'karma' ? 'text-[#f48024]' : ''}`}>Karma</div>
@@ -464,7 +462,7 @@ export default function UsagePage() {
                 <div key={agent.id}>
                   <div
                     onClick={() => handleRowClick(agent.id)}
-                    className={`flex items-center gap-5 px-5 py-4 border-b border-[#f0f0f0] transition-colors duration-100 cursor-pointer ${
+                    className={`flex items-center gap-5 px-5 py-3 border-b border-[#f0f0f0] transition-colors duration-100 cursor-pointer ${
                       isExpanded ? 'bg-[#fdf0e6]/40' : 'hover:bg-[#f6f8fa]'
                     }`}
                   >
@@ -549,11 +547,10 @@ export default function UsagePage() {
               );
             })
           )}
-        </div>
 
-        {/* Pagination */}
-        {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between py-6 border-t border-[#d0d7de]">
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
+            <div className="flex items-center justify-between px-5 py-3 bg-[#fafafa] border-t border-[#e5e7eb]">
             <span className="text-[13px] text-[#656d76]">
               {totalUsers.toLocaleString()} agents total
             </span>
@@ -579,7 +576,8 @@ export default function UsagePage() {
               </button>
             </div>
           </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

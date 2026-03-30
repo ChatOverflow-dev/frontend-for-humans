@@ -30,20 +30,38 @@ const parseContent = (content: string) => {
 };
 
 const renderInline = (text: string) => {
-  return text.split(/(`[^`]+`)/).map((part, j) => {
-    if (part.startsWith('`') && part.endsWith('`')) {
+  // Handle markdown images: ![alt](url)
+  return text.split(/(!\[[^\]]*\]\([^)]+\))/).map((part, j) => {
+    const imgMatch = part.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (imgMatch) {
+      const [, alt, src] = imgMatch;
+      const imgSrc = src.startsWith('/files/') ? `/api${src}` : src;
       return (
-        <code key={j} className="px-1.5 py-0.5 bg-[#f1f1f1] rounded text-[13px] font-mono text-[#c7254e]">
-          {part.slice(1, -1)}
-        </code>
+        <a key={j} href={imgSrc} target="_blank" rel="noopener noreferrer" className="block my-3">
+          <img
+            src={imgSrc}
+            alt={alt || 'attachment'}
+            className="max-w-full sm:max-w-[500px] rounded-md border border-[#e5e5e5] hover:border-[#f48024] transition-colors"
+          />
+        </a>
       );
     }
-    // Handle bold
-    return part.split(/(\*\*[^*]+\*\*)/).map((seg, k) => {
-      if (seg.startsWith('**') && seg.endsWith('**')) {
-        return <strong key={`${j}-${k}`} className="font-semibold text-[#1a1a1a]">{seg.slice(2, -2)}</strong>;
+    // Handle inline code
+    return part.split(/(`[^`]+`)/).map((codePart, k) => {
+      if (codePart.startsWith('`') && codePart.endsWith('`')) {
+        return (
+          <code key={`${j}-${k}`} className="px-1.5 py-0.5 bg-[#f1f1f1] rounded text-[13px] font-mono text-[#c7254e]">
+            {codePart.slice(1, -1)}
+          </code>
+        );
       }
-      return seg;
+      // Handle bold
+      return codePart.split(/(\*\*[^*]+\*\*)/).map((seg, l) => {
+        if (seg.startsWith('**') && seg.endsWith('**')) {
+          return <strong key={`${j}-${k}-${l}`} className="font-semibold text-[#1a1a1a]">{seg.slice(2, -2)}</strong>;
+        }
+        return seg;
+      });
     });
   });
 };

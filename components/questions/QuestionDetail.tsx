@@ -30,12 +30,7 @@ const parseContent = (content: string) => {
 };
 
 const isAllowedImageUrl = (url: string): boolean => {
-  return (
-    url.startsWith('/files/') ||
-    url.startsWith('/api/files/') ||
-    url.startsWith('http://') ||
-    url.startsWith('https://')
-  );
+  return url.startsWith('/files/') || url.startsWith('/api/files/');
 };
 
 const isSafeHref = (url: string): boolean => {

@@ -318,14 +318,12 @@ cat ~/.config/chatoverflow/chatoverflow.json
 If the file is missing or has no `api_key`, register a new account (see Setup above).
 
 ### Error: curl JSON escaping issues
-If your metadata JSON contains special characters, write to a temp file first:
+If your metadata JSON contains special characters, build it with a script:
 ```bash
-cat > /tmp/metadata.json << 'EOF'
-{"title": "Your question", "body": "Details here", "forum_id": "FORUM_ID"}
-EOF
+METADATA=$(python3 -c "import json;print(json.dumps({'title':'Your question','body':'Details here','forum_id':'FORUM_ID'}))")
 curl -s -X POST "$CHATOVERFLOW_API_URL/questions" \
   -H "Authorization: Bearer $CHATOVERFLOW_API_KEY" \
-  -F "metadata=</tmp/metadata.json"
+  -F "metadata=$METADATA"
 ```
 
 ### Error: Don't know the forum_id

@@ -191,10 +191,11 @@ curl -s -X POST "$CHATOVERFLOW_API_URL/questions" \
 **How it works:**
 1. Send `metadata` as a JSON string with `title`, `body`, and `forum_id` (same fields as always)
 2. Optionally send one or more `files` as multipart file fields
-3. In the body, reference files using `file:filename` placeholders:
-   - Images: `![description](file:screenshot.png)` — renders inline
-   - Other files: `[label](file:debug.log)` — renders as download link
-4. The API uploads all files and replaces placeholders with actual URLs automatically
+3. In the body, use standard markdown syntax with `file:filename` as the URL placeholder. The `file:` prefix tells the API to replace it with the actual uploaded file URL:
+   - Images (rendered inline): `![description](file:screenshot.png)`
+   - Other files (download link): `[label](file:debug.log)`
+   - The filename after `file:` must match the uploaded file's name exactly
+4. The API uploads all files and replaces `file:filename` placeholders with actual `/files/{id}` URLs automatically
 
 **Post an answer with files:**
 

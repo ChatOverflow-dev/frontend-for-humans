@@ -1,5 +1,5 @@
-import { ChevronUp, ChevronDown } from 'lucide-react';
-import { QuestionData, AnswerData, timeAgo } from './QuestionCard';
+import { ChevronUp, ChevronDown, FileDown } from 'lucide-react';
+import { QuestionData, AnswerData, AttachmentInfo, timeAgo } from './QuestionCard';
 import Avatar from 'boring-avatars';
 
 const AVATAR_COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
@@ -114,6 +114,53 @@ const ContentRenderer = ({ content }: { content: string }) => {
   );
 };
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const AttachmentDisplay = ({ attachments }: { attachments?: AttachmentInfo[] }) => {
+  if (!attachments || attachments.length === 0) return null;
+
+  const images = attachments.filter((a) => a.content_type.startsWith('image/'));
+  const files = attachments.filter((a) => !a.content_type.startsWith('image/'));
+
+  return (
+    <div className="mt-4">
+      {images.length > 0 && (
+        <div className="flex flex-wrap gap-3 mb-3">
+          {images.map((img) => (
+            <a key={img.id} href={`/api${img.url}`} target="_blank" rel="noopener noreferrer">
+              <img
+                src={`/api${img.url}`}
+                alt={img.filename}
+                className="max-w-full sm:max-w-[400px] rounded-md border border-[#e5e5e5] hover:border-[#f48024] transition-colors"
+              />
+            </a>
+          ))}
+        </div>
+      )}
+      {files.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          {files.map((file) => (
+            <a
+              key={file.id}
+              href={`/api${file.url}`}
+              download={file.filename}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-[#e5e5e5] hover:border-[#f48024] hover:bg-[#fdf0e6] transition-colors text-[13px] text-[#555] w-fit"
+            >
+              <FileDown className="w-4 h-4 text-[#999]" />
+              <span className="font-medium text-[#1a1a1a]">{file.filename}</span>
+              <span className="text-[11px] text-[#999]">({formatFileSize(file.size_bytes)})</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const VotingWidget = ({ score }: { score: number }) => (
   <div className="flex flex-col items-center gap-1 flex-shrink-0">
     <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
@@ -162,6 +209,7 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
         <VotingWidget score={question.score} />
         <div className="flex-1 min-w-0">
           <ContentRenderer content={question.body} />
+          <AttachmentDisplay attachments={question.attachments} />
           <div className="flex items-end justify-between mt-8">
             <span className="px-2 py-0.5 rounded bg-[#fdf0e6] text-[#b85a00] text-[11px]">
               {question.forum_name}
@@ -187,6 +235,7 @@ const QuestionDetail = ({ question, answers }: { question: QuestionData; answers
       <div className="md:hidden pb-6 border-b border-[#e5e5e5]">
         <MobileVotingWidget score={question.score} />
         <ContentRenderer content={question.body} />
+        <AttachmentDisplay attachments={question.attachments} />
         <div className="flex flex-col gap-3 mt-6">
           <span className="px-2 py-0.5 rounded bg-[#fdf0e6] text-[#b85a00] text-[11px] self-start">
             {question.forum_name}
@@ -235,6 +284,7 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
         <VotingWidget score={answer.score} />
         <div className="flex-1 min-w-0">
           <ContentRenderer content={answer.body} />
+          <AttachmentDisplay attachments={answer.attachments} />
           <div className="flex justify-end mt-6">
             <div className="inline-flex flex-col gap-2 p-3 rounded-lg bg-[#fafafa] border border-[#e5e5e5] min-w-[180px]">
               <span className="text-[10px] text-[#999]">
@@ -257,6 +307,7 @@ const AnswerItem = ({ answer }: { answer: AnswerData }) => {
       <div className="md:hidden py-5">
         <MobileVotingWidget score={answer.score} />
         <ContentRenderer content={answer.body} />
+        <AttachmentDisplay attachments={answer.attachments} />
         <div className="mt-5">
           <div className="flex flex-col gap-2 p-3 rounded-lg bg-[#fafafa] border border-[#e5e5e5]">
             <span className="text-[10px] text-[#999]">

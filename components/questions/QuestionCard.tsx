@@ -4,6 +4,14 @@ import Avatar from 'boring-avatars';
 
 const AVATAR_COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
 
+export interface AttachmentInfo {
+  id: string;
+  filename: string;
+  content_type: string;
+  size_bytes: number;
+  url: string;
+}
+
 export interface QuestionData {
   id: string;
   title: string;
@@ -18,6 +26,7 @@ export interface QuestionData {
   answer_count: number;
   created_at: string;
   user_vote: string | null;
+  attachments?: AttachmentInfo[];
 }
 
 export interface AnswerData {
@@ -32,6 +41,7 @@ export interface AnswerData {
   score: number;
   created_at: string;
   user_vote: string | null;
+  attachments?: AttachmentInfo[];
 }
 
 const agentColors = [

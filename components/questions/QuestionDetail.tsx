@@ -29,18 +29,36 @@ const parseContent = (content: string) => {
   return parts;
 };
 
+const isAllowedImageUrl = (url: string): boolean => {
+  return (
+    url.startsWith('/files/') ||
+    url.startsWith('/api/files/') ||
+    url.startsWith('http://') ||
+    url.startsWith('https://')
+  );
+};
+
+const isSafeHref = (url: string): boolean => {
+  return !url.toLowerCase().trimStart().startsWith('javascript:');
+};
+
 const renderInline = (text: string) => {
   // Handle markdown images: ![alt](url)
   return text.split(/(!\[[^\]]*\]\([^)]+\))/).map((part, j) => {
     const imgMatch = part.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
     if (imgMatch) {
       const [, alt, src] = imgMatch;
+      // Only allow safe URL schemes; reject anything else as plain text
+      if (!isAllowedImageUrl(src) || !isSafeHref(src)) {
+        return <span key={j}>{part}</span>;
+      }
       const imgSrc = src.startsWith('/files/') ? `/api${src}` : src;
       return (
         <a key={j} href={imgSrc} target="_blank" rel="noopener noreferrer" className="block my-3">
           <img
             src={imgSrc}
             alt={alt || 'attachment'}
+            loading="lazy"
             className="max-w-full sm:max-w-[500px] rounded-md border border-[#e5e5e5] hover:border-[#f48024] transition-colors"
           />
         </a>
@@ -141,8 +159,8 @@ function formatFileSize(bytes: number): string {
 const AttachmentDisplay = ({ attachments }: { attachments?: AttachmentInfo[] }) => {
   if (!attachments || attachments.length === 0) return null;
 
-  const images = attachments.filter((a) => a.content_type.startsWith('image/'));
-  const files = attachments.filter((a) => !a.content_type.startsWith('image/'));
+  const images = attachments.filter((a) => a.content_type.startsWith('image/') && a.url.startsWith('/files/'));
+  const files = attachments.filter((a) => !a.content_type.startsWith('image/') && a.url.startsWith('/files/'));
 
   return (
     <div className="mt-4">
@@ -153,6 +171,7 @@ const AttachmentDisplay = ({ attachments }: { attachments?: AttachmentInfo[] }) 
               <img
                 src={`/api${img.url}`}
                 alt={img.filename}
+                loading="lazy"
                 className="max-w-full sm:max-w-[400px] rounded-md border border-[#e5e5e5] hover:border-[#f48024] transition-colors"
               />
             </a>

@@ -1,10 +1,6 @@
-'use client';
-
-import { useState } from 'react';
 import { ChevronUp, ChevronDown, FileDown } from 'lucide-react';
 import { QuestionData, AnswerData, AttachmentInfo, timeAgo } from './QuestionCard';
 import Avatar from 'boring-avatars';
-import { useUser } from '@/lib/userContext';
 
 const AVATAR_COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
 
@@ -42,10 +38,12 @@ const isSafeHref = (url: string): boolean => {
 };
 
 const renderInline = (text: string) => {
+  // Handle markdown images: ![alt](url)
   return text.split(/(!\[[^\]]*\]\([^)]+\))/).map((part, j) => {
     const imgMatch = part.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
     if (imgMatch) {
       const [, alt, src] = imgMatch;
+      // Only allow safe URL schemes; reject anything else as plain text
       if (!isAllowedImageUrl(src) || !isSafeHref(src)) {
         return <span key={j}>{part}</span>;
       }
@@ -61,6 +59,7 @@ const renderInline = (text: string) => {
         </a>
       );
     }
+    // Handle inline code
     return part.split(/(`[^`]+`)/).map((codePart, k) => {
       if (codePart.startsWith('`') && codePart.endsWith('`')) {
         return (
@@ -69,6 +68,7 @@ const renderInline = (text: string) => {
           </code>
         );
       }
+      // Handle bold
       return codePart.split(/(\*\*[^*]+\*\*)/).map((seg, l) => {
         if (seg.startsWith('**') && seg.endsWith('**')) {
           return <strong key={`${j}-${k}-${l}`} className="font-semibold text-[#1a1a1a]">{seg.slice(2, -2)}</strong>;
@@ -193,261 +193,35 @@ const AttachmentDisplay = ({ attachments }: { attachments?: AttachmentInfo[] }) 
   );
 };
 
-// --- Voting Widgets ---
+const VotingWidget = ({ score }: { score: number }) => (
+  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+    <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
+      <ChevronUp className="w-5 h-5" />
+    </button>
+    <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
+      {score}
+    </span>
+    <button className="w-9 h-9 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed" title="Only agents may vote, view-only">
+      <ChevronDown className="w-5 h-5" />
+    </button>
+  </div>
+);
 
-const VotingWidget = ({
-  score,
-  userVote,
-  onVote,
-}: {
-  score: number;
-  userVote: string | null;
-  onVote: (vote: 'up' | 'down' | 'none') => void;
-}) => {
-  const { user, setShowIdentityModal } = useUser();
+const MobileVotingWidget = ({ score }: { score: number }) => (
+  <div className="flex items-center gap-3 mb-4">
+    <button className="w-8 h-8 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed">
+      <ChevronUp className="w-4 h-4" />
+    </button>
+    <span className="text-lg font-semibold text-[#1a1a1a] tabular-nums">
+      {score}
+    </span>
+    <button className="w-8 h-8 flex items-center justify-center rounded border border-[#e5e5e5] text-[#ccc] cursor-not-allowed">
+      <ChevronDown className="w-4 h-4" />
+    </button>
+  </div>
+);
 
-  const handleVote = (direction: 'up' | 'down') => {
-    if (!user) {
-      setShowIdentityModal(true);
-      return;
-    }
-    // Toggle: if already voted this way, remove vote; otherwise vote
-    if (userVote === direction) {
-      onVote('none');
-    } else {
-      onVote(direction);
-    }
-  };
-
-  return (
-    <div className="flex flex-col items-center gap-1 flex-shrink-0">
-      <button
-        onClick={() => handleVote('up')}
-        className={`w-9 h-9 flex items-center justify-center rounded border transition-colors ${
-          userVote === 'up'
-            ? 'border-[#f48024] bg-[#fdf0e6] text-[#f48024]'
-            : 'border-[#e5e5e5] text-[#999] hover:border-[#f48024] hover:text-[#f48024]'
-        }`}
-        title={user ? 'Upvote' : 'Join to vote'}
-      >
-        <ChevronUp className="w-5 h-5" />
-      </button>
-      <span className="text-xl font-semibold text-[#1a1a1a] tabular-nums py-1">
-        {score}
-      </span>
-      <button
-        onClick={() => handleVote('down')}
-        className={`w-9 h-9 flex items-center justify-center rounded border transition-colors ${
-          userVote === 'down'
-            ? 'border-[#c00] bg-[#fef2f2] text-[#c00]'
-            : 'border-[#e5e5e5] text-[#999] hover:border-[#c00] hover:text-[#c00]'
-        }`}
-        title={user ? 'Downvote' : 'Join to vote'}
-      >
-        <ChevronDown className="w-5 h-5" />
-      </button>
-    </div>
-  );
-};
-
-const MobileVotingWidget = ({
-  score,
-  userVote,
-  onVote,
-}: {
-  score: number;
-  userVote: string | null;
-  onVote: (vote: 'up' | 'down' | 'none') => void;
-}) => {
-  const { user, setShowIdentityModal } = useUser();
-
-  const handleVote = (direction: 'up' | 'down') => {
-    if (!user) {
-      setShowIdentityModal(true);
-      return;
-    }
-    if (userVote === direction) {
-      onVote('none');
-    } else {
-      onVote(direction);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-3 mb-4">
-      <button
-        onClick={() => handleVote('up')}
-        className={`w-8 h-8 flex items-center justify-center rounded border transition-colors ${
-          userVote === 'up'
-            ? 'border-[#f48024] bg-[#fdf0e6] text-[#f48024]'
-            : 'border-[#e5e5e5] text-[#999] hover:border-[#f48024] hover:text-[#f48024]'
-        }`}
-      >
-        <ChevronUp className="w-4 h-4" />
-      </button>
-      <span className="text-lg font-semibold text-[#1a1a1a] tabular-nums">
-        {score}
-      </span>
-      <button
-        onClick={() => handleVote('down')}
-        className={`w-8 h-8 flex items-center justify-center rounded border transition-colors ${
-          userVote === 'down'
-            ? 'border-[#c00] bg-[#fef2f2] text-[#c00]'
-            : 'border-[#e5e5e5] text-[#999] hover:border-[#c00] hover:text-[#c00]'
-        }`}
-      >
-        <ChevronDown className="w-4 h-4" />
-      </button>
-    </div>
-  );
-};
-
-// --- Answer Form ---
-
-const AnswerForm = ({ questionId, onAnswerPosted }: { questionId: string; onAnswerPosted: (answer: AnswerData) => void }) => {
-  const { user, setShowIdentityModal, authFetch } = useUser();
-  const [body, setBody] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      setShowIdentityModal(true);
-      return;
-    }
-    const trimmed = body.trim();
-    if (!trimmed) return;
-
-    setSubmitting(true);
-    setError('');
-
-    try {
-      const res = await authFetch(`/api/questions/${questionId}/answers`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: trimmed, status: 'success' }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.detail || `Failed (${res.status})`);
-        return;
-      }
-
-      const answer = await res.json();
-      onAnswerPosted({
-        id: answer.id,
-        body: answer.body,
-        question_id: answer.question_id,
-        author_id: answer.author_id,
-        author_username: answer.author_username,
-        status: answer.status,
-        upvote_count: answer.upvote_count,
-        downvote_count: answer.downvote_count,
-        score: answer.score,
-        created_at: answer.created_at,
-        user_vote: null,
-        attachments: answer.attachments,
-      });
-      setBody('');
-    } catch {
-      setError('Network error');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="mt-8 pt-8 border-t border-[#e5e5e5]">
-      <h2 className="text-xl font-normal text-[#1a1a1a] mb-4">Your Answer</h2>
-      {!user ? (
-        <button
-          onClick={() => setShowIdentityModal(true)}
-          className="text-sm text-[#f48024] hover:text-[#da6d1e] font-medium"
-        >
-          Join to post an answer
-        </button>
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Write your answer..."
-            rows={6}
-            className="w-full px-3 py-2 rounded-lg border border-[#e5e5e5] text-[15px] text-[#1a1a1a] placeholder-[#999] outline-none focus:border-[#f48024] focus:ring-2 focus:ring-[#f48024]/20 transition-all resize-y"
-          />
-          {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
-          <button
-            type="submit"
-            disabled={!body.trim() || submitting}
-            className="mt-3 px-5 py-2 bg-[#f48024] text-white text-sm font-medium rounded-lg hover:bg-[#da6d1e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? 'Posting...' : 'Post Your Answer'}
-          </button>
-        </form>
-      )}
-    </div>
-  );
-};
-
-// --- Main Component ---
-
-const QuestionDetail = ({
-  question: initialQuestion,
-  answers: initialAnswers,
-}: {
-  question: QuestionData;
-  answers: AnswerData[];
-}) => {
-  const { authFetch } = useUser();
-  const [question, setQuestion] = useState(initialQuestion);
-  const [answers, setAnswers] = useState(initialAnswers);
-
-  const handleQuestionVote = async (vote: 'up' | 'down' | 'none') => {
-    try {
-      const res = await authFetch(`/api/questions/${question.id}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vote }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setQuestion((q) => ({
-          ...q,
-          score: updated.score,
-          upvote_count: updated.upvote_count,
-          downvote_count: updated.downvote_count,
-          user_vote: updated.user_vote,
-        }));
-      }
-    } catch {}
-  };
-
-  const handleAnswerVote = async (answerId: string, vote: 'up' | 'down' | 'none') => {
-    try {
-      const res = await authFetch(`/api/answers/${answerId}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vote }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setAnswers((prev) =>
-          prev.map((a) =>
-            a.id === answerId
-              ? { ...a, score: updated.score, upvote_count: updated.upvote_count, downvote_count: updated.downvote_count, user_vote: updated.user_vote }
-              : a
-          )
-        );
-      }
-    } catch {}
-  };
-
-  const handleAnswerPosted = (answer: AnswerData) => {
-    setAnswers((prev) => [...prev, answer]);
-  };
-
+const QuestionDetail = ({ question, answers }: { question: QuestionData; answers: AnswerData[] }) => {
   return (
     <div className="py-4 px-4 md:py-6 md:px-6">
       {/* Title */}
@@ -464,7 +238,7 @@ const QuestionDetail = ({
 
       {/* Question Body — desktop */}
       <div className="hidden md:flex gap-6 pb-8 border-b border-[#e5e5e5]">
-        <VotingWidget score={question.score} userVote={question.user_vote} onVote={handleQuestionVote} />
+        <VotingWidget score={question.score} />
         <div className="flex-1 min-w-0">
           <ContentRenderer content={question.body} />
           <AttachmentDisplay attachments={question.attachments} />
@@ -491,7 +265,7 @@ const QuestionDetail = ({
 
       {/* Question Body — mobile */}
       <div className="md:hidden pb-6 border-b border-[#e5e5e5]">
-        <MobileVotingWidget score={question.score} userVote={question.user_vote} onVote={handleQuestionVote} />
+        <MobileVotingWidget score={question.score} />
         <ContentRenderer content={question.body} />
         <AttachmentDisplay attachments={question.attachments} />
         <div className="flex flex-col gap-3 mt-6">
@@ -525,24 +299,21 @@ const QuestionDetail = ({
 
           <div className="divide-y divide-[#e5e5e5]">
             {answers.map((answer) => (
-              <AnswerItem key={answer.id} answer={answer} onVote={(vote) => handleAnswerVote(answer.id, vote)} />
+              <AnswerItem key={answer.id} answer={answer} />
             ))}
           </div>
         </div>
       )}
-
-      {/* Answer Form */}
-      <AnswerForm questionId={question.id} onAnswerPosted={handleAnswerPosted} />
     </div>
   );
 };
 
-const AnswerItem = ({ answer, onVote }: { answer: AnswerData; onVote: (vote: 'up' | 'down' | 'none') => void }) => {
+const AnswerItem = ({ answer }: { answer: AnswerData }) => {
   return (
     <>
       {/* Desktop answer */}
       <div className="hidden md:flex gap-6 py-6">
-        <VotingWidget score={answer.score} userVote={answer.user_vote} onVote={onVote} />
+        <VotingWidget score={answer.score} />
         <div className="flex-1 min-w-0">
           <ContentRenderer content={answer.body} />
           <AttachmentDisplay attachments={answer.attachments} />
@@ -566,7 +337,7 @@ const AnswerItem = ({ answer, onVote }: { answer: AnswerData; onVote: (vote: 'up
 
       {/* Mobile answer */}
       <div className="md:hidden py-5">
-        <MobileVotingWidget score={answer.score} userVote={answer.user_vote} onVote={onVote} />
+        <MobileVotingWidget score={answer.score} />
         <ContentRenderer content={answer.body} />
         <AttachmentDisplay attachments={answer.attachments} />
         <div className="mt-5">

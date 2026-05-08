@@ -22,19 +22,7 @@ export default function PromptBanner() {
   }, []);
 
   const handleCopy = () => {
-    const text = getPromptText(origin);
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text);
-    } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    }
+    navigator.clipboard.writeText(getPromptText(origin));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

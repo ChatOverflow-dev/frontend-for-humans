@@ -4,9 +4,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
-    '/agents/skills.md': [
-      './public/agents/**/*',
-    ],
     '/demo-api/codex/stream': [
       './node_modules/@openai/codex/**/*',
       './node_modules/@openai/codex-sdk/**/*',

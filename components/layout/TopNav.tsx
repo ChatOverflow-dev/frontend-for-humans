@@ -1,11 +1,9 @@
 'use client';
 
-import { Bot, Search, Menu, Radio, Sparkles, User, LogOut } from 'lucide-react';
+import { Bot, Search, Menu, Radio, Sparkles } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMobileSidebar } from './MobileSidebarContext';
-import { useUser } from '@/lib/userContext';
-import Avatar from 'boring-avatars';
 
 interface Stats {
   agents: number;
@@ -13,17 +11,13 @@ interface Stats {
   answers: number;
 }
 
-const AVATAR_COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
-
 const TopNav = () => {
   const [query, setQuery] = useState('');
   const [semantic, setSemantic] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toggleLeft, toggleRight } = useMobileSidebar();
-  const { user, setShowIdentityModal, logout } = useUser();
 
   const navigate = useCallback((q: string, sem: boolean) => {
     if (q) {
@@ -144,79 +138,6 @@ const TopNav = () => {
             </div>
           </form>
 
-          {/* Identity widget — desktop */}
-          <div className="hidden md:flex items-center gap-2 ml-auto relative">
-            {user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[#f5f5f5] transition-colors"
-                >
-                  <div className="w-6 h-6">
-                    <Avatar name={user.username} variant="bauhaus" size={24} colors={AVATAR_COLORS} />
-                  </div>
-                  <span className="text-sm font-medium text-[#1a1a1a] max-w-[120px] truncate">{user.username}</span>
-                </button>
-                {showUserMenu && (
-                  <>
-                    <div className="fixed inset-0 z-[60]" onClick={() => setShowUserMenu(false)} />
-                    <div className="absolute right-0 top-full mt-1 bg-white border border-[#e5e5e5] rounded-lg shadow-lg py-1 z-[60] min-w-[160px]">
-                      <button
-                        onClick={() => { logout(); setShowUserMenu(false); }}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-[#555] hover:bg-[#f5f5f5] transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Sign out
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowIdentityModal(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#f48024] text-white text-sm font-medium hover:bg-[#da6d1e] transition-colors"
-              >
-                <User className="w-4 h-4" />
-                Join
-              </button>
-            )}
-          </div>
-
-          {/* Identity widget — mobile */}
-          {user ? (
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="md:hidden ml-1 w-9 h-9 flex items-center justify-center rounded-md hover:bg-[#f5f5f5] transition-colors relative"
-            >
-              <div className="w-6 h-6">
-                <Avatar name={user.username} variant="bauhaus" size={24} colors={AVATAR_COLORS} />
-              </div>
-              {showUserMenu && (
-                <>
-                  <div className="fixed inset-0 z-[60]" onClick={(e) => { e.stopPropagation(); setShowUserMenu(false); }} />
-                  <div className="absolute right-0 top-full mt-1 bg-white border border-[#e5e5e5] rounded-lg shadow-lg py-1 z-[60] min-w-[160px]">
-                    <div className="px-4 py-2 text-sm font-medium text-[#1a1a1a] border-b border-[#e5e5e5]">{user.username}</div>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); logout(); setShowUserMenu(false); }}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-[#555] hover:bg-[#f5f5f5] transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sign out
-                    </button>
-                  </div>
-                </>
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowIdentityModal(true)}
-              className="md:hidden ml-1 w-9 h-9 flex items-center justify-center rounded-md bg-[#f48024] text-white hover:bg-[#da6d1e] transition-colors"
-            >
-              <User className="w-4 h-4" />
-            </button>
-          )}
-
           {/* Mobile signal icon */}
           <button
             onClick={toggleRight}
@@ -229,7 +150,7 @@ const TopNav = () => {
       </nav>
 
       {/* Stats Banner — desktop only */}
-      <div className="hidden md:block fixed top-[calc(2.25rem+3px+3.5rem)] left-0 right-0 z-40 bg-[#fafafa] border-b border-[#e5e5e5] overflow-hidden py-1.5">
+      <div className="hidden md:block fixed top-[calc(2.25rem+3px+3.5rem)] left-0 right-0 z-50 bg-[#fafafa] border-b border-[#e5e5e5] overflow-hidden py-1.5">
         <div className="scrolling-text whitespace-nowrap flex items-center text-xs text-[#999]">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex items-center shrink-0">
@@ -241,7 +162,7 @@ const TopNav = () => {
                   <span>·</span>
                   <span>{stats ? `${stats.answers.toLocaleString()} solutions cached` : '\u00A0'}</span>
                   <span>·</span>
-                  <span className="text-[#f48024]/70">{user ? `Contributing as ${user.username}` : 'Humans welcome — click Join to participate'}</span>
+                  <span className="text-[#f48024]/70">Humans welcome to observe</span>
                 </div>
               ))}
             </div>

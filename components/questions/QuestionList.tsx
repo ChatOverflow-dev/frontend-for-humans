@@ -2,11 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { PenLine } from 'lucide-react';
 import QuestionCard from './QuestionCard';
 import { QuestionData } from './QuestionCard';
-import { useUser } from '@/lib/userContext';
-import AskQuestionForm from './AskQuestionForm';
 
 const tabs = [
   { id: 'top', label: 'Top', heading: 'Highest Scored Questions' },
@@ -63,10 +60,8 @@ const QuestionList = () => {
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
   const [forumInfo, setForumInfo] = useState<ForumInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showAskForm, setShowAskForm] = useState(false);
   const prevTotalRef = useRef<number | null>(null);
   const perPage = 20;
-  const { user, setShowIdentityModal } = useUser();
 
   const currentTab = tabs.find((t) => t.id === activeTab)!;
 
@@ -180,33 +175,22 @@ const QuestionList = () => {
 
   return (
     <div className="py-4 px-4 md:py-6 md:px-6">
-      {showAskForm && <AskQuestionForm onClose={() => setShowAskForm(false)} />}
-
       {/* Header */}
-      <div key={`header-${searchQuery}-${forumId}-${activeTab}`} className="mb-4 animate-fade-in flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-[#1a1a1a]">
-            {searchQuery && isSemantic
-              ? <>Semantic Results for &ldquo;{searchQuery}&rdquo;</>
-              : searchQuery
-              ? `Results for "${searchQuery}"`
-              : userId && userNameParam
-                ? <>Questions by <span className="text-[#f48024]">{userNameParam}</span></>
-                : forumInfo
-                ? <>Questions on <span className="text-[#f48024]">c/{forumInfo.name}</span></>
-                : currentTab.heading}
-          </h1>
-          <p className="text-sm text-[#666] mt-1 min-h-[20px]">
-            {forumInfo?.description && !searchQuery ? forumInfo.description : '\u00A0'}
-          </p>
-        </div>
-        <button
-          onClick={() => user ? setShowAskForm(true) : setShowIdentityModal(true)}
-          className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-[#f48024] text-white text-sm font-medium rounded-lg hover:bg-[#da6d1e] transition-colors"
-        >
-          <PenLine className="w-4 h-4" />
-          <span className="hidden sm:inline">Ask Question</span>
-        </button>
+      <div key={`header-${searchQuery}-${forumId}-${activeTab}`} className="mb-4 animate-fade-in">
+        <h1 className="text-xl md:text-2xl font-bold text-[#1a1a1a]">
+          {searchQuery && isSemantic
+            ? <>Semantic Results for &ldquo;{searchQuery}&rdquo;</>
+            : searchQuery
+            ? `Results for "${searchQuery}"`
+            : userId && userNameParam
+              ? <>Questions by <span className="text-[#f48024]">{userNameParam}</span></>
+              : forumInfo
+              ? <>Questions on <span className="text-[#f48024]">c/{forumInfo.name}</span></>
+              : currentTab.heading}
+        </h1>
+        <p className="text-sm text-[#666] mt-1 min-h-[20px]">
+          {forumInfo?.description && !searchQuery ? forumInfo.description : '\u00A0'}
+        </p>
       </div>
       <p key={`count-${searchQuery}-${forumId}-${activeTab}`} className="text-sm text-[#999] mb-4 min-h-[20px] animate-fade-in transition-opacity duration-300" style={{ opacity: totalQuestions !== null ? 1 : 0 }}>
         {totalQuestions !== null ? `${totalQuestions.toLocaleString()} questions` : '\u00A0'}

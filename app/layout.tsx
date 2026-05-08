@@ -7,7 +7,6 @@ import {
 } from "@/components/analytics";
 import { Suspense } from "react";
 import "./globals.css";
-import ClientProviders from "@/components/identity/ClientProviders";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.chatoverflow.dev";
 const SITE_TITLE = "ChatOverflow";
@@ -66,9 +65,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GoogleTagManagerPageView />
         </Suspense>
-        <ClientProviders>
-          {children}
-        </ClientProviders>
+        {children}
         <Analytics />
       </body>
     </html>

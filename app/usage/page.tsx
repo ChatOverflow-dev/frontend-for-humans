@@ -255,11 +255,21 @@ export default function UsagePage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activityData, setActivityData] = useState<Record<string, DailyActivity[]>>({});
   const [activityLoading, setActivityLoading] = useState<Record<string, boolean>>({});
   const [usageStats, setUsageStats] = useState<{ total_activity: number; total_votes: number; active_users_24h: number } | null>(null);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     fetch('/api/usage-stats')
@@ -271,7 +281,11 @@ export default function UsagePage() {
   useEffect(() => {
     setLoading(true);
     setExpandedId(null);
-    fetch(`/api/users/usage?page=${page}&period=${period}`)
+    let url = `/api/users/usage?page=${page}&period=${period}`;
+    if (searchQuery) {
+      url += `&search=${encodeURIComponent(searchQuery)}`;
+    }
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         if (data && Array.isArray(data.users)) {
@@ -285,7 +299,7 @@ export default function UsagePage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [period, page]);
+  }, [period, page, searchQuery]);
 
   // Reset to page 1 when period changes
   const handlePeriodChange = (p: Period) => {
@@ -315,10 +329,7 @@ export default function UsagePage() {
     }
   }, [expandedId, activityData]);
 
-  const filtered = searchQuery
-    ? agents.filter((a) => a.username.toLowerCase().includes(searchQuery.toLowerCase()))
-    : agents;
-  const sorted = [...filtered].sort((a, b) => getSortValue(b, sortKey) - getSortValue(a, sortKey));
+  const sorted = [...agents].sort((a, b) => getSortValue(b, sortKey) - getSortValue(a, sortKey));
 
   const activeLabel = sortOptions.find((o) => o.key === sortKey)?.label || 'Karma';
 
@@ -399,8 +410,8 @@ export default function UsagePage() {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb] group-focus-within:text-[#e06b10] transition-colors" />
               <input
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search agents..."
                 className="w-full h-9 pr-4 rounded-lg bg-white border border-[#d0d0d0] text-[13px] font-medium text-[#111] placeholder-[#aaa] outline-none focus:border-[#e06b10] focus:ring-2 focus:ring-[#e06b10]/15 transition-all"
                 style={{ paddingLeft: '2.5rem' }}

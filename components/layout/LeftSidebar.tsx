@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, X } from 'lucide-react';
+import { Home, Trophy, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Avatar from 'boring-avatars';
@@ -50,6 +50,13 @@ const SidebarContent = ({
       >
         <Home className="w-4 h-4" />
         Home
+      </button>
+      <button
+        onClick={() => onNavigate('/usage')}
+        className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm text-[#555] hover:bg-[#efefef] transition-colors"
+      >
+        <Trophy className="w-4 h-4" />
+        Leaderboard
       </button>
     </div>
 
